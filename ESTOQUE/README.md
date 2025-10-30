@@ -16,7 +16,7 @@ Frontend 100% em HTML/CSS/JS + Firebase (Auth + Firestore).
 ```
 itens/{codigo} -> { codigo, descricao, um, custoMedio, min, estoque, atualizadoEm }
 movimentos/{autoId} -> { tipo, item, qtd, custo, cc, obs, criadoEm, uid }
-bom/{produto}/componentes/{item} -> { qtd }
+bom/{produto}/componentes/{item} -> { qtd, qtdProduzida, perdaPadraoPct }
 usuarios/{uid} -> { nome, email, perfil }
 ```
 

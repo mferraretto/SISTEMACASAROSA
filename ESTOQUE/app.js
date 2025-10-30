@@ -377,9 +377,10 @@ $('frmBOM').addEventListener('submit', async (e)=>{
   const prod = $('bomProduto').value.trim().toUpperCase();
   const item = $('bomItem').value.trim().toUpperCase();
   const qtd = Number($('bomQtd').value);
+  const qtdProduzida = Number($('bomQtdProduzida').value||0);
   const perdaPadraoPct = Number($('bomPerda').value||0);
   const ref = F.doc(db, 'bom', prod, 'componentes', item);
-  await F.setDoc(ref, { qtd, perdaPadraoPct }, {merge:true});
+  await F.setDoc(ref, { qtd, qtdProduzida, perdaPadraoPct }, {merge:true});
   $('bomMsg').textContent = 'Componente adicionado.';
   await listarBOMTabela(prod);
   e.target.reset();
@@ -393,12 +394,15 @@ async function listarBOMTabela(prod){
   snap.forEach(d=>{
     const c = d.data();
     if(c.__deleted) return;
+    const qtd = Number(c.qtd||0).toFixed(3);
+    const qtdProduzida = Number(c.qtdProduzida||0).toFixed(3);
     const perdaPct = Number(c.perdaPadraoPct||0).toFixed(2);
     const linha = `
       <tr>
         <td>${prod}</td>
         <td>${d.id}</td>
-        <td>${c.qtd}</td>
+        <td>${qtd}</td>
+        <td>${qtdProduzida}</td>
         <td>${perdaPct}</td>
         <td><button class="btn btn-outline" data-rem="${d.id}" data-prod="${prod}">Remover</button></td>
       </tr>`;
@@ -421,8 +425,10 @@ $('btnLoadBOM').addEventListener('click', async ()=>{
   snap.forEach(d=>{
     const c = d.data();
     if(c.__deleted) return;
+    const qtd = Number(c.qtd||0).toFixed(3);
+    const qtdProduzida = Number(c.qtdProduzida||0).toFixed(3);
     const perdaPct = Number(c.perdaPadraoPct||0).toFixed(2);
-    tbody.insertAdjacentHTML('beforeend', `<tr><td>${d.id}</td><td>${c.qtd}</td><td>${perdaPct}</td></tr>`);
+    tbody.insertAdjacentHTML('beforeend', `<tr><td>${d.id}</td><td>${qtd}</td><td>${qtdProduzida}</td><td>${perdaPct}</td></tr>`);
   });
 });
 
@@ -757,7 +763,12 @@ async function obterBOM(produto){
   snap.forEach(doc=>{
     const data = doc.data();
     if(data.__deleted) return;
-    lista.push({item: doc.id, qtd: Number(data.qtd||0), perdaPadraoPct: Number(data.perdaPadraoPct||0)});
+    lista.push({
+      item: doc.id,
+      qtd: Number(data.qtd||0),
+      qtdProduzida: Number(data.qtdProduzida||0),
+      perdaPadraoPct: Number(data.perdaPadraoPct||0)
+    });
   });
   return lista;
 }
