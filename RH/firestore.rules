@@ -1,0 +1,101 @@
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function role() {
+      return isSignedIn() ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role : null;
+    }
+    function userRole() {
+      return role();
+    }
+    function isADM(){ return isSignedIn() && userRole() == 'ADM'; }
+    function isRH(){ return isSignedIn() && userRole() == 'RH'; }
+    function isGestor(){ return isSignedIn() && userRole() == 'Gestor'; }
+    function isAdmin(){ return isSignedIn() && userRole() in ['ADM','Gestor','RH']; }
+    function isSelf(uid){ return isSignedIn() && uid == request.auth.uid; }
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && (isSelf(uid) || isAdmin());
+      allow write: if isAdmin() || isSelf(uid);
+    }
+
+    match /employees/{id} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid);
+      allow update: if isAdmin() || (isSignedIn() && resource.data.uid == request.auth.uid && !request.resource.data.diff(resource.data).changedKeys().hasAny(['salary','role','status','costCenter']));
+      allow create, delete: if isAdmin();
+    }
+
+    match /attendance/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /vacations/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /documents/{id} {
+      function docOwner(doc) {
+        return doc.employeeUid;
+      }
+      function isDocSelf(doc) {
+        return isSignedIn() && docOwner(doc) != null && docOwner(doc) == request.auth.uid;
+      }
+      function ownerManagerUid(uid) {
+        return get(/databases/$(database)/documents/users/$(uid)).data.managerUid;
+      }
+      function employeeManagerUid(uid) {
+        return get(/databases/$(database)/documents/employees/$(uid)).data.managerUid;
+      }
+      function isManagerOf(doc) {
+        return isGestor() && docOwner(doc) != null && (
+          ownerManagerUid(docOwner(doc)) == request.auth.uid ||
+          employeeManagerUid(docOwner(doc)) == request.auth.uid
+        );
+      }
+
+      allow read: if isADM() || isRH() || isManagerOf(resource.data) || isDocSelf(resource.data);
+      allow create: if isADM() || isRH() || (
+        isDocSelf(request.resource.data) &&
+        request.resource.data.status == 'Em aprovacao'
+      );
+      allow update: if isADM() || isRH() || (
+        isDocSelf(resource.data) &&
+        resource.data.sign.status == 'Pendente' &&
+        request.resource.data.sign.status == 'Assinado' &&
+        request.resource.data.sign.byUid == request.auth.uid &&
+        request.resource.data.status == 'Valido' &&
+        !request.resource.data.diff(resource.data).changedKeys().hasAny([
+          'employeeUid','employeeEmail','type','title','tags','path','url','version',
+          'previousVersionId','uploadedBy','uploadedAt','approval','history','costCenter','notes'
+        ])
+      );
+      allow delete: if isADM() || isRH();
+    }
+
+    match /holerites/{id} {
+      allow read: if isAdmin() || (isSignedIn() && (resource.data.uid == request.auth.uid || resource.data.email == request.auth.token.email));
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    match /jobs/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /candidates/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /goals/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}
