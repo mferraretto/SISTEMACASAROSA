@@ -646,27 +646,27 @@ function renderPayslipForm(employee) {
     <form id="payslip-form" class="grid cols-2">
       <label class="field">
         <span>Referência (AAAA-MM)</span>
-        <input class="input" name="reference" value="${ref}" required pattern="\\d{4}-\\d{2}">
+        <input class="input" name="reference" value="${ref}" required pattern="\\d{4}-\\d{2}" data-help="Informe o período de referência no formato ano-mês, por exemplo 2024-05.">
       </label>
       <label class="field">
         <span>Salário base</span>
-        <input class="input" name="base" type="number" step="0.01" value="${employee.salary || ""}" required>
+        <input class="input" name="base" type="number" step="0.01" value="${employee.salary || ""}" required data-help="Valor bruto do salário contratual antes de adicionais e descontos.">
       </label>
       <label class="field">
         <span>Vencimentos</span>
-        <textarea class="input" name="earnings" placeholder="Salário, Horas extras, Adicionais"></textarea>
+        <textarea class="input" name="earnings" placeholder="Salário, Horas extras, Adicionais" data-help="Descreva os ganhos do período (ex.: salário, horas extras, adicionais)."></textarea>
       </label>
       <label class="field">
         <span>Descontos</span>
-        <textarea class="input" name="discounts" placeholder="INSS, VT, Faltas"></textarea>
+        <textarea class="input" name="discounts" placeholder="INSS, VT, Faltas" data-help="Informe os descontos aplicados, como INSS, vale transporte ou faltas."></textarea>
       </label>
       <label class="field">
         <span>Valor líquido</span>
-        <input class="input" name="net" type="number" step="0.01" value="${employee.salary || ""}" required>
+        <input class="input" name="net" type="number" step="0.01" value="${employee.salary || ""}" required data-help="Resultado final do holerite após somar ganhos e subtrair descontos.">
       </label>
       <label class="field">
         <span>Observações</span>
-        <textarea class="input" name="notes" placeholder="Mensagem adicional"></textarea>
+        <textarea class="input" name="notes" placeholder="Mensagem adicional" data-help="Inclua mensagens que aparecerão no rodapé do holerite, como avisos ou lembretes."></textarea>
       </label>
       <div></div>
       <div style="display:flex;gap:.5rem;justify-content:flex-end">
@@ -753,26 +753,26 @@ async function openForm(existing = null) {
     <div class="card">
       <h3>${existing ? "Editar" : "Novo"} colaborador</h3>
       <form id="femp" class="grid cols-3">
-        <input class="input" name="name" placeholder="Nome completo" value="${existing?.name || ""}" required>
-        <input class="input" name="doc" placeholder="CPF / RG" value="${existing?.doc || ""}">
-        <input class="input" name="email" type="email" placeholder="Email" value="${existing?.email || ""}" required>
-        <input class="input" name="phone" placeholder="Telefone" value="${existing?.phone || ""}">
-        <input class="input" name="role" placeholder="Cargo / Função" value="${existing?.role || ""}">
-        <input class="input" name="costCenter" placeholder="Centro de Custo" value="${existing?.costCenter || ""}">
-        <input class="input" name="hireDate" type="date" value="${existing?.hireDate || ""}">
-        <select class="input" name="contractType">
+        <input class="input" name="name" placeholder="Nome completo" value="${existing?.name || ""}" required data-help="Informe o nome completo exatamente como consta nos documentos do colaborador.">
+        <input class="input" name="doc" placeholder="CPF / RG" value="${existing?.doc || ""}" data-help="Registre o documento principal (CPF ou RG) para facilitar identificações.">
+        <input class="input" name="email" type="email" placeholder="Email" value="${existing?.email || ""}" required data-help="E-mail profissional do colaborador que receberá notificações e acessos.">
+        <input class="input" name="phone" placeholder="Telefone" value="${existing?.phone || ""}" data-help="Telefone de contato direto (celular ou fixo) para emergências ou avisos.">
+        <input class="input" name="role" placeholder="Cargo / Função" value="${existing?.role || ""}" data-help="Função exercida pelo colaborador na empresa (ex.: Analista de RH).">
+        <input class="input" name="costCenter" placeholder="Centro de Custo" value="${existing?.costCenter || ""}" data-help="Centro de custo responsável pelo colaborador para fins de rateio.">
+        <input class="input" name="hireDate" type="date" value="${existing?.hireDate || ""}" data-help="Data de admissão do colaborador (formato AAAA-MM-DD).">
+        <select class="input" name="contractType" data-help="Tipo de vínculo empregatício utilizado no contrato (CLT, PJ, Estágio ou Autônomo).">
           ${["CLT", "PJ", "Estágio", "Autônomo"].map((option) => `<option value="${option}" ${existing?.contractType === option ? "selected" : ""}>${option}</option>`).join("")}
         </select>
-        <input class="input" name="salary" type="number" step="0.01" placeholder="Salário base (R$)" value="${existing?.salary || ""}">
-        <input class="input" name="workload" placeholder="Jornada (ex: 44h semanais)" value="${existing?.workload || ""}">
-        <input class="input" name="supervisor" placeholder="Supervisor / Gestor" value="${existing?.supervisor || ""}">
-        <select class="input" name="status">
+        <input class="input" name="salary" type="number" step="0.01" placeholder="Salário base (R$)" value="${existing?.salary || ""}" data-help="Valor bruto da remuneração mensal acordada com o colaborador.">
+        <input class="input" name="workload" placeholder="Jornada (ex: 44h semanais)" value="${existing?.workload || ""}" data-help="Carga horária contratual, como 44h semanais ou 220h mensais.">
+        <input class="input" name="supervisor" placeholder="Supervisor / Gestor" value="${existing?.supervisor || ""}" data-help="Nome do gestor direto responsável pelo colaborador.">
+        <select class="input" name="status" data-help="Situação atual do colaborador na empresa (Ativo ou Inativo).">
           <option value="Ativo" ${existing?.status !== "Inativo" ? "selected" : ""}>Ativo</option>
           <option value="Inativo" ${existing?.status === "Inativo" ? "selected" : ""}>Inativo</option>
         </select>
-        <input class="input" name="uid" placeholder="UID (opcional)" value="${existing?.uid || ""}">
-        <textarea class="input" name="notes" placeholder="Observações">${existing?.notes || ""}</textarea>
-        <input class="input" name="birthDate" type="date" value="${existing?.birthDate || existing?.birthday || ""}">
+        <input class="input" name="uid" placeholder="UID (opcional)" value="${existing?.uid || ""}" data-help="Código único utilizado para vincular o colaborador a um usuário autenticado (opcional).">
+        <textarea class="input" name="notes" placeholder="Observações" data-help="Inclua informações adicionais relevantes, como restrições médicas ou acordos específicos.">${existing?.notes || ""}</textarea>
+        <input class="input" name="birthDate" type="date" value="${existing?.birthDate || existing?.birthday || ""}" data-help="Data de nascimento do colaborador para cálculos de benefícios e aniversários.">
         <div></div>
         <div style="display:flex;gap:.5rem;justify-content:flex-end">
           <button class="btn ghost" type="button" id="cancel">Cancelar</button>
@@ -1056,7 +1056,7 @@ async function renderManagerView() {
             <small class="helper">Centro de gestão completo do time Casa Rosa</small>
           </div>
           <div class="toolbar-actions">
-            <input class="input search" id="empSearch" placeholder="Buscar por nome, CPF ou e-mail">
+            <input class="input search" id="empSearch" placeholder="Buscar por nome, CPF ou e-mail" data-help="Filtra a lista de colaboradores por nome, CPF ou endereço de e-mail.">
             <select class="input filter-select" id="filter-status"></select>
             <select class="input filter-select" id="filter-role"></select>
             <select class="input filter-select" id="filter-cost"></select>

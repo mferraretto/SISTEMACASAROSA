@@ -34,10 +34,10 @@ window.PerformanceView = async function PerformanceView(){
     <div class="card">
       <h2>Nova meta</h2>
       <form id="fgoal" class="grid">
-        <input class="input" name="title" placeholder="Meta" required>
+        <input class="input" name="title" placeholder="Meta" required data-help="Nome ou descrição resumida da meta que será acompanhada." />
         <textarea class="input" name="desc" placeholder="Descrição"></textarea>
-        <input class="input" name="owner" placeholder="Responsável (email)">
-        <input class="input" type="date" name="deadline">
+        <input class="input" name="owner" placeholder="Responsável (email)" data-help="Informe o e-mail do responsável pela meta para atribuição e notificações." />
+        <input class="input" type="date" name="deadline" data-help="Defina a data limite para avaliação da meta (opcional)." />
         <select class="input" name="status">
           <option>Em progresso</option>
           <option>Em risco</option>

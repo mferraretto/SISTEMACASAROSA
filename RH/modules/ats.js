@@ -21,8 +21,8 @@ window.ATSView = async function ATSView(){
     <div class="card">
       <h2>Abrir vaga</h2>
       <form id="fjob" class="grid">
-        <input class="input" name="title" placeholder="Título da vaga" required>
-        <input class="input" name="location" placeholder="Local (ex: Presencial - SP)">
+        <input class="input" name="title" placeholder="Título da vaga" required data-help="Nome da vaga que aparecerá para os candidatos no pipeline." />
+        <input class="input" name="location" placeholder="Local (ex: Presencial - SP)" data-help="Localização ou regime (presencial, híbrido, remoto) associado à vaga." />
         <select class="input" name="status"><option>Aberta</option><option>Pausada</option><option>Fechada</option></select>
         <textarea class="input" name="desc" placeholder="Descrição da vaga"></textarea>
         <button class="btn" type="submit">Criar vaga</button>
@@ -70,9 +70,9 @@ window.ATSView = async function ATSView(){
         <hr class="split">
         <h3>Adicionar candidato</h3>
         <form id="fcand" class="grid cols-3">
-          <input class="input" name="name" placeholder="Nome" required>
-          <input class="input" name="email" placeholder="Email" required>
-          <input class="input" name="stage" placeholder="Etapa (Triagem/Entrevista/Oferta)">
+          <input class="input" name="name" placeholder="Nome" required data-help="Nome completo do candidato para identificação no processo." />
+          <input class="input" name="email" placeholder="Email" required data-help="E-mail do candidato para contato e envio de comunicados." />
+          <input class="input" name="stage" placeholder="Etapa (Triagem/Entrevista/Oferta)" data-help="Informe a etapa atual do candidato no funil de recrutamento." />
           <button class="btn" type="submit">Adicionar</button>
         </form>
         <h3>Pipeline</h3>

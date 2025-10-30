@@ -1152,20 +1152,20 @@ window.DocumentsView = async function DocumentsView() {
         <div class="filters-grid">
           <div class="input-group">
             <label>Colaborador</label>
-            <input class="input" id="filter-employee" list="filter-employee-list" placeholder="Buscar" />
+            <input class="input" id="filter-employee" list="filter-employee-list" placeholder="Buscar" data-help="Localize documentos vinculados a um colaborador pelo nome ou e-mail." />
             <datalist id="filter-employee-list"></datalist>
           </div>
           <div class="input-group">
             <label>Tipo</label>
-            <select class="input" id="filter-type"></select>
+            <select class="input" id="filter-type" data-help="Filtra documentos por categoria (ex.: ASO, contrato, holerite)."></select>
           </div>
           <div class="input-group">
             <label>Tags</label>
-            <select class="input" id="filter-tags" multiple></select>
+            <select class="input" id="filter-tags" multiple data-help="Selecione uma ou mais tags para refinar os documentos marcados com esses assuntos."></select>
           </div>
           <div class="input-group">
             <label>Status</label>
-            <select class="input" id="filter-status">
+            <select class="input" id="filter-status" data-help="Mostra documentos conforme o status (válido, vencido, pendente de assinatura etc.).">
               <option value="">Status</option>
               <option value="Valido">Válido</option>
               <option value="Vencendo">Vencendo em 30 dias</option>
@@ -1176,19 +1176,19 @@ window.DocumentsView = async function DocumentsView() {
           </div>
           <div class="input-group">
             <label>Validade (de)</label>
-            <input class="input" type="date" id="filter-from" />
+            <input class="input" type="date" id="filter-from" data-help="Data inicial para filtrar documentos por período de validade ou criação." />
           </div>
           <div class="input-group">
             <label>Validade (até)</label>
-            <input class="input" type="date" id="filter-to" />
+            <input class="input" type="date" id="filter-to" data-help="Data final para filtrar documentos por período de validade ou criação." />
           </div>
           <div class="input-group">
             <label>Centro de custo</label>
-            <select class="input" id="filter-cost-center"></select>
+            <select class="input" id="filter-cost-center" data-help="Limita a visualização a documentos ligados a um centro de custo."></select>
           </div>
           <div class="input-group full">
             <label>Busca livre</label>
-            <input class="input" id="filter-search" placeholder="Título, observações, arquivo" />
+            <input class="input" id="filter-search" placeholder="Título, observações, arquivo" data-help="Busca livre por palavras-chave no título, observações ou nome do arquivo." />
           </div>
         </div>
         <div class="filters-actions">
@@ -1214,48 +1214,48 @@ window.DocumentsView = async function DocumentsView() {
           <form id="doc-upload-form" class="upload-grid">
             <div class="input-group">
               <label>Título</label>
-              <input class="input" name="title" placeholder="Ex.: ASO Periódico" />
+              <input class="input" name="title" placeholder="Ex.: ASO Periódico" data-help="Título que identifica o documento no repositório interno." />
             </div>
             <div class="input-group">
               <label>Colaborador</label>
-              <select class="input" name="employeeUid"></select>
+              <select class="input" name="employeeUid" data-help="Associe o documento ao colaborador responsável ou titular."></select>
             </div>
             <div class="input-group">
               <label>Tipo</label>
-              <select class="input" name="type">
+              <select class="input" name="type" data-help="Escolha o tipo conforme a política documental (ex.: ASO, contrato, holerite).">
                 ${DOCUMENT_LIBRARY.map((item) => `<option value="${item.value}">${item.label} • ${item.category}</option>`).join("")}
               </select>
             </div>
             <div class="input-group">
               <label>Tags</label>
-              <select class="input" name="tags" multiple></select>
+              <select class="input" name="tags" multiple data-help="Aplique tags para facilitar buscas por assunto ou processo."></select>
             </div>
             <div class="input-group">
               <label>Validade</label>
-              <input class="input" type="date" name="validUntil" />
+              <input class="input" type="date" name="validUntil" data-help="Defina a data de validade do documento, quando aplicável." />
             </div>
             <div class="input-group">
               <label>Centro de custo</label>
-              <input class="input" name="costCenter" placeholder="Ex.: Produção" />
+              <input class="input" name="costCenter" placeholder="Ex.: Produção" data-help="Centro de custo relacionado ao documento para controle de compliance." />
             </div>
             <div class="input-group">
               <label>Status</label>
-              <select class="input" name="status">
+              <select class="input" name="status" data-help="Status de acompanhamento do documento (válido, em aprovação, vencido).">
                 <option value="Valido">Válido</option>
                 <option value="Em aprovacao">Em aprovação</option>
                 <option value="Vencido">Vencido</option>
               </select>
             </div>
             <div class="input-group checkbox">
-              <label><input type="checkbox" name="signRequired" /> Requer assinatura</label>
+              <label><input type="checkbox" name="signRequired" data-help="Marque quando o documento exige assinatura de alguma das partes." /> Requer assinatura</label>
             </div>
             <div class="input-group full">
               <label>Observações</label>
-              <textarea class="input" name="notes" rows="2" placeholder="Notas internas, prazos, vínculos"></textarea>
+              <textarea class="input" name="notes" rows="2" placeholder="Notas internas, prazos, vínculos" data-help="Escreva lembretes internos, como prazos de renovação ou vínculos com outros documentos."></textarea>
             </div>
             <div class="input-group full">
               <label>Arquivo</label>
-              <input class="input" type="file" name="file" required />
+              <input class="input" type="file" name="file" required data-help="Selecione o arquivo digital (PDF, imagem, etc.) que será armazenado no repositório." />
             </div>
             <div class="form-actions">
               <button class="btn" type="submit">Salvar</button>

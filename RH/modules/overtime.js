@@ -380,7 +380,7 @@ function renderFiltersSection() {
     .map(
       ([key, info]) => `
       <label class="status-filter">
-        <input type="checkbox" data-action="filter-status" value="${key}" ${
+        <input type="checkbox" data-action="filter-status" value="${key}" data-help="Incluir solicitações com status ${info.label.toLowerCase()}" ${
           filters.statuses.has(key) ? "checked" : ""
         }>
         <span>${info.label}</span>
@@ -398,17 +398,17 @@ function renderFiltersSection() {
       <div class="filters-grid">
         <div class="field">
           <label>Início</label>
-          <input class="input" type="date" data-action="filter-start" value="${filters.start}">
+          <input class="input" type="date" data-action="filter-start" value="${filters.start}" data-help="Data inicial para consultar pedidos de hora extra dentro do período escolhido.">
         </div>
         <div class="field">
           <label>Fim</label>
-          <input class="input" type="date" data-action="filter-end" value="${filters.end}">
+          <input class="input" type="date" data-action="filter-end" value="${filters.end}" data-help="Data final para consultar pedidos de hora extra dentro do período escolhido.">
         </div>
         ${
           showManagerFilter
             ? `<div class="field">
                 <label>Gestor</label>
-                <select class="input" data-action="filter-manager">
+                <select class="input" data-action="filter-manager" data-help="Exibe solicitações sob responsabilidade do gestor selecionado.">
                   <option value="">Todos</option>
                   ${managerOptions}
                 </select>
@@ -417,7 +417,7 @@ function renderFiltersSection() {
         }
         <div class="field">
           <label>Centro de Custo</label>
-          <select class="input" data-action="filter-cost-center">
+          <select class="input" data-action="filter-cost-center" data-help="Filtra pedidos associados a um centro de custo específico.">
             <option value="">Todos</option>
             ${centerOptions}
           </select>
@@ -426,7 +426,7 @@ function renderFiltersSection() {
           <label>Colaborador</label>
           <input class="input" type="search" placeholder="Buscar por nome ou e-mail" data-action="filter-employee" value="${
             filters.employee
-          }">
+          }" data-help="Localize pedidos pelo nome ou e-mail do colaborador.">
         </div>
       </div>
       <div class="status-grid">${statusOptions}</div>
@@ -562,7 +562,7 @@ function renderTable(records) {
   const canSelect = !isCollaborator();
   const headers = `
     <tr>
-      ${canSelect ? "<th style=\"width:32px\"><input type=\"checkbox\" data-action=\"select-all\"></th>" : ""}
+      ${canSelect ? "<th style=\"width:32px\"><input type=\"checkbox\" data-action=\"select-all\" data-help=\"Seleciona ou desmarca todos os registros exibidos\"></th>" : ""}
       <th>Colaborador</th>
       <th>Data</th>
       <th>Início–Fim</th>
@@ -593,7 +593,7 @@ function renderTable(records) {
         )
         .join(" ");
       const checkbox = canSelect
-        ? `<input type="checkbox" class="row-check" data-id="${record.id}" ${
+        ? `<input type="checkbox" class="row-check" data-id="${record.id}" data-help="Seleciona este pedido para ações em massa" ${
             selection.has(record.id) ? "checked" : ""
           }>`
         : "";
@@ -1103,14 +1103,14 @@ function openRequestModal(recordId = null) {
       <form class="grid">
         <div class="field">
           <label>Colaborador</label>
-          <select class="input" name="collaborator" required>
+          <select class="input" name="collaborator" required data-help="Escolha o colaborador que realizará a hora extra.">
             <option value="">Selecione</option>
             ${getEmployeeOptions(defaults.collaborator)}
           </select>
         </div>
         <div class="field">
           <label>Gestor responsável</label>
-          <select class="input" name="managerUid">
+          <select class="input" name="managerUid" data-help="Defina o gestor que aprovará e acompanhará a solicitação.">
             <option value="">(defina o gestor)</option>
             ${getManagers()
               .map(
@@ -1125,47 +1125,47 @@ function openRequestModal(recordId = null) {
         <div class="grid cols-2">
           <div class="field">
             <label>Data</label>
-            <input class="input" type="date" name="date" value="${defaults.date}" required>
+            <input class="input" type="date" name="date" value="${defaults.date}" required data-help="Data em que a hora extra será realizada.">
           </div>
           <div class="field">
             <label>Centro de Custo</label>
-            <input class="input" name="costCenter" value="${defaults.costCenter}">
+            <input class="input" name="costCenter" value="${defaults.costCenter}" data-help="Centro de custo que receberá a imputação das horas adicionais.">
           </div>
         </div>
         <div class="grid cols-3">
           <div class="field">
             <label>Início</label>
-            <input class="input" type="time" name="start" value="${defaults.start}" required>
+            <input class="input" type="time" name="start" value="${defaults.start}" required data-help="Horário previsto para início da jornada extraordinária.">
           </div>
           <div class="field">
             <label>Fim</label>
-            <input class="input" type="time" name="end" value="${defaults.end}" required>
+            <input class="input" type="time" name="end" value="${defaults.end}" required data-help="Horário previsto para término da jornada extraordinária.">
           </div>
           <div class="field">
             <label>Intervalo (min)</label>
-            <input class="input" type="number" name="breakMins" value="${defaults.breakMins}" min="0" step="5">
+            <input class="input" type="number" name="breakMins" value="${defaults.breakMins}" min="0" step="5" data-help="Informe minutos de intervalo previstos dentro da hora extra (se houver).">
           </div>
         </div>
         <div class="grid cols-2">
           <div class="field">
             <label>Tipo de hora</label>
-            <select class="input" name="type">
+            <select class="input" name="type" data-help="Determine o adicional aplicável (50% ou 100%).">
               <option value="extra50" ${defaults.type === "extra50" ? "selected" : ""}>Extra 50%</option>
               <option value="extra100" ${defaults.type === "extra100" ? "selected" : ""}>Extra 100%</option>
             </select>
           </div>
           <label class="field" style="flex-direction:row;align-items:center;gap:.5rem;margin-top:1.75rem">
-            <input type="checkbox" name="night" ${defaults.night ? "checked" : ""}>
+            <input type="checkbox" name="night" ${defaults.night ? "checked" : ""} data-help="Marque quando o período inclui horário noturno (22h às 5h).">
             Adicional noturno (22h-05h)
           </label>
         </div>
         <div class="field">
           <label>Motivo</label>
-          <textarea class="input" name="reason" required rows="3">${defaults.reason}</textarea>
+          <textarea class="input" name="reason" required rows="3" data-help="Descreva o motivo ou demanda que justifica a hora extra.">${defaults.reason}</textarea>
         </div>
         <div class="field">
           <label>Anexo (opcional)</label>
-          <input class="input" type="file" name="attachment" accept="application/pdf,image/*">
+          <input class="input" type="file" name="attachment" accept="application/pdf,image/*" data-help="Anexe comprovantes, autorizações ou documentos complementares (opcional).">
         </div>
         <div class="field">
           <label>Preview</label>
@@ -1208,20 +1208,20 @@ function openDecisionModal(id, approve, adjustOnly = false) {
         <div class="grid cols-3">
           <div class="field">
             <label>Início aprovado</label>
-            <input class="input" type="time" name="start" value="${formatTime(record.start)}">
+            <input class="input" type="time" name="start" value="${formatTime(record.start)}" data-help="Horário aprovado para início da hora extra após análise da gestão.">
           </div>
           <div class="field">
             <label>Fim aprovado</label>
-            <input class="input" type="time" name="end" value="${formatTime(record.end)}">
+            <input class="input" type="time" name="end" value="${formatTime(record.end)}" data-help="Horário aprovado para término da hora extra.">
           </div>
           <div class="field">
             <label>Intervalo (min)</label>
-            <input class="input" type="number" name="breakMins" value="${record.breakMins || 0}" min="0" step="5">
+            <input class="input" type="number" name="breakMins" value="${record.breakMins || 0}" min="0" step="5" data-help="Ajuste os minutos de intervalo concedidos na aprovação.">
           </div>
         </div>
         <div class="field">
           <label>Decisão / Motivo</label>
-          <textarea class="input" name="decision" required rows="3"></textarea>
+          <textarea class="input" name="decision" required rows="3" data-help="Registre o parecer da gestão: aprovação, ajuste ou motivo da rejeição."></textarea>
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close>Cancelar</button>
@@ -1288,16 +1288,16 @@ function openExecutionModal(id) {
             <label>Horas reais (decimal)</label>
             <input class="input" type="number" name="hoursReal" min="0" step="0.25" value="${
               record.executed?.hoursReal || computeHours(record).total
-            }">
+            }" data-help="Informe as horas efetivamente trabalhadas na execução (formato decimal).">
           </div>
           <div class="field">
             <label>Anexo (opcional)</label>
-            <input class="input" type="file" name="attachment">
+            <input class="input" type="file" name="attachment" data-help="Anexe comprovantes da execução, como ponto manual ou autorização assinada.">
           </div>
         </div>
         <div class="field">
           <label>Observação</label>
-          <textarea class="input" name="notes" rows="3">${record.executed?.notes || ""}</textarea>
+          <textarea class="input" name="notes" rows="3" data-help="Inclua observações sobre a execução (atrasos, incidentes, complementos).">${record.executed?.notes || ""}</textarea>
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close>Cancelar</button>
@@ -1503,7 +1503,7 @@ function openImportModal() {
       <form class="grid">
         <div class="field">
           <label>Arquivo CSV</label>
-          <input class="input" type="file" name="file" accept=".csv" required>
+          <input class="input" type="file" name="file" accept=".csv" required data-help="Selecione o arquivo CSV seguindo o layout indicado para importar solicitações em lote.">
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close>Cancelar</button>
@@ -1597,7 +1597,7 @@ function openMassApproveModal() {
       <form class="grid">
         <div class="field">
           <label>Decisão / Motivo</label>
-          <textarea class="input" name="decision" required rows="3"></textarea>
+          <textarea class="input" name="decision" required rows="3" data-help="Descreva o parecer aplicado a todos os registros selecionados."></textarea>
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close>Cancelar</button>
@@ -1640,11 +1640,11 @@ function openMassAdjustModal() {
       <form class="grid">
         <div class="field">
           <label>Fator de redução</label>
-          <input class="input" type="number" name="factor" min="0" max="1" step="0.05" value="0.1" required>
+          <input class="input" type="number" name="factor" min="0" max="1" step="0.05" value="0.1" required data-help="Informe o percentual de redução em formato decimal (ex.: 0.2 reduz 20%).">
         </div>
         <div class="field">
           <label>Motivo</label>
-          <textarea class="input" name="reason" required rows="3"></textarea>
+          <textarea class="input" name="reason" required rows="3" data-help="Explique o motivo do ajuste coletivo para registro e auditoria."></textarea>
         </div>
         <div style="display:flex;gap:.75rem;justify-content:flex-end">
           <button type="button" class="btn ghost" data-close>Cancelar</button>
