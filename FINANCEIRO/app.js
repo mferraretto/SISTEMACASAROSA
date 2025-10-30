@@ -12,121 +12,21 @@ const pages = ['dashboard','pagar','receber','conciliacao','centros','relatorios
 const now = new Date();
 byId('year').textContent = now.getFullYear();
 
-const ALLOWED_PROFILES = ['FINANCEIRO', 'COMPRAS'];
-let isAuthorizedUser = false;
-let activePage = location.hash.replace('#','') || 'dashboard';
-let lastAccessError = '';
-const navButtons = Array.from(document.querySelectorAll('#nav button'));
-const accessNotice = byId('accessNotice');
-const accessNoticeCard = byId('accessNoticeCard');
-const accessNoticeTitle = byId('accessNoticeTitle');
-const accessNoticeMessage = byId('accessNoticeMessage');
-
 // Nav
-navButtons.forEach(btn=>{
+document.querySelectorAll('#nav button').forEach(btn=>{
   btn.addEventListener('click',()=> showPage(btn.dataset.page));
 });
-
-updateNavAccess();
-showPage(activePage);
-
 function showPage(page){
-  if(!page) return;
-  activePage = page;
-  pages.forEach(p=> byId(`page-${p}`)?.classList.add('hidden'));
-  byId(`page-${page}`)?.classList.remove('hidden');
+  pages.forEach(p=> byId(`page-${p}`).classList.add('hidden'));
+  byId(`page-${page}`).classList.remove('hidden');
   window.location.hash = page;
-  if(!isAuthorizedUser) return;
   if(page==='dashboard') renderDashboard();
   if(page==='pagar') loadPagar();
   if(page==='receber') loadReceber();
   if(page==='centros') loadCentrosCategorias();
   if(page==='relatorios') loadRelatorios();
 }
-
-function updateNavAccess(){
-  navButtons.forEach(btn=>{
-    if(!btn) return;
-    const disable = !isAuthorizedUser;
-    btn.disabled = disable;
-    btn.classList.toggle('opacity-50', disable);
-    btn.classList.toggle('pointer-events-none', disable);
-    btn.classList.toggle('cursor-not-allowed', disable);
-  });
-}
-
-function setAccessNotice({ title, message, tone = 'info', visible = true } = {}){
-  if(!accessNotice) return;
-  if(visible){
-    accessNotice.classList.remove('hidden');
-  }else{
-    accessNotice.classList.add('hidden');
-  }
-  if(accessNoticeTitle && typeof title === 'string'){
-    accessNoticeTitle.textContent = title;
-  }
-  if(accessNoticeMessage && typeof message === 'string'){
-    accessNoticeMessage.textContent = message;
-  }
-  if(accessNoticeCard){
-    const tones = ['bg-amber-50','border-amber-300','text-amber-700','bg-rose-50','border-rose-200','text-rose-700','bg-emerald-50','border-emerald-200','text-emerald-700'];
-    accessNoticeCard.classList.remove(...tones);
-    if(tone==='error'){
-      accessNoticeCard.classList.add('bg-rose-50','border-rose-200','text-rose-700');
-    }else if(tone==='success'){
-      accessNoticeCard.classList.add('bg-emerald-50','border-emerald-200','text-emerald-700');
-    }else{
-      accessNoticeCard.classList.add('bg-amber-50','border-amber-300','text-amber-700');
-    }
-  }
-}
-
-function normalizeProfiles(value){
-  if(!value) return [];
-  if(typeof value === 'string') return [value];
-  if(typeof value === 'boolean') return value ? ['FINANCEIRO'] : [];
-  if(Array.isArray(value)) return value;
-  if(typeof value === 'object'){
-    const entries = [];
-    Object.values(value).forEach(v=>{
-      if(typeof v === 'string') entries.push(v);
-      if(typeof v === 'boolean' && v) entries.push('FINANCEIRO');
-    });
-    return entries;
-  }
-  return [];
-}
-
-async function ensureFinanceiroAccess(uid){
-  if(!uid) return { authorized:false, reason:'missing-user' };
-  try{
-    const snapshot = await getDoc(doc(db,'users', uid));
-    if(!snapshot.exists()){
-      return { authorized:false, reason:'profile-not-found' };
-    }
-    const data = snapshot.data() || {};
-    const profiles = normalizeProfiles(data.financeiro).map(p=> String(p||'').trim().toUpperCase()).filter(Boolean);
-    const authorized = profiles.some(perfil=> ALLOWED_PROFILES.includes(perfil));
-    if(!authorized){
-      return { authorized:false, reason:'profile-not-allowed', profiles };
-    }
-    return { authorized:true, profiles };
-  }catch(error){
-    console.error('Erro ao buscar permissões do Financeiro:', error);
-    return { authorized:false, reason:'error', error };
-  }
-}
-
-function clearFinanceiroData(){
-  ['alerts','page-dashboard','listaPagar','listaReceber','conciliacaoLog','topDespesas','topReceitas','kpis'].forEach(id=>{
-    const el = byId(id);
-    if(el) el.innerHTML = '';
-  });
-  if(window.__chart){
-    try{ window.__chart.destroy(); }catch(e){ console.warn('Erro ao destruir gráfico existente:', e); }
-    window.__chart = null;
-  }
-}
+showPage(location.hash.replace('#','') || 'dashboard');
 
 // Auth
 const btnLogin = byId('btnLogin');
@@ -144,81 +44,18 @@ btnLogin.addEventListener('click', async ()=>{
 });
 btnLogout.addEventListener('click', ()=> signOut(auth));
 
-onAuthStateChanged(auth, async (user)=>{
+onAuthStateChanged(auth, (user)=>{
   if(user){
     userEmail.textContent = user.email || 'Usuário anônimo';
     btnLogin.classList.add('hidden');
     btnLogout.classList.remove('hidden');
-    isAuthorizedUser = false;
-    updateNavAccess();
-    setAccessNotice({
-      title: 'Verificando permissões',
-      message: 'Validando seu acesso ao Financeiro...',
-      tone: 'info',
-      visible: true
-    });
-
-    const access = await ensureFinanceiroAccess(user.uid);
-
-    if(!access.authorized){
-      clearFinanceiroData();
-      isAuthorizedUser = false;
-      updateNavAccess();
-      if(access.reason === 'profile-not-found'){
-        lastAccessError = 'Perfil não localizado. Solicite acesso ao administrador.';
-      }else if(access.reason === 'profile-not-allowed'){
-        lastAccessError = 'Acesso restrito. Este usuário não possui perfil Financeiro ou Compras.';
-      }else if(access.reason === 'missing-user'){
-        lastAccessError = 'Não foi possível identificar o usuário autenticado.';
-      }else{
-        lastAccessError = 'Não foi possível validar suas permissões. Tente novamente mais tarde.';
-      }
-      setAccessNotice({
-        title: 'Acesso restrito',
-        message: lastAccessError,
-        tone: 'error',
-        visible: true
-      });
-      try{
-        await signOut(auth);
-      }catch(err){
-        console.error('Erro ao encerrar sessão não autorizada:', err);
-      }
-      return;
-    }
-
-    lastAccessError = '';
-    isAuthorizedUser = true;
-    updateNavAccess();
-    setAccessNotice({ visible: false });
-    showPage(activePage);
-    try{
-      await renderAlerts();
-    }catch(err){
-      console.error('Erro ao carregar alertas:', err);
-    }
-    try{
-      await scheduleRecorrencias();
-    }catch(err){
-      console.error('Erro ao agendar recorrências:', err);
-    }
+    renderDashboard();
+    scheduleRecorrencias();
+    renderAlerts();
   }else{
     userEmail.textContent = '';
     btnLogin.classList.remove('hidden');
     btnLogout.classList.add('hidden');
-    isAuthorizedUser = false;
-    updateNavAccess();
-    clearFinanceiroData();
-    if(lastAccessError){
-      setAccessNotice({
-        title: 'Acesso restrito',
-        message: lastAccessError,
-        tone: 'error',
-        visible: true
-      });
-    }else{
-      setAccessNotice({ visible: false });
-    }
   }
 });
 
