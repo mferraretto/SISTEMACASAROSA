@@ -141,6 +141,10 @@
             <input id="bomQtd" type="number" step="0.0001" value="1" data-help="Quantidade do insumo necessária para fabricar uma unidade do produto." />
           </div>
           <div>
+            <label>Qtd produzida com o insumo</label>
+            <input id="bomQtdProduzida" type="number" step="0.0001" value="0" data-help="Informe quanto do produto final é produzido utilizando este insumo." />
+          </div>
+          <div>
             <label>Perda padrão (%)</label>
             <input id="bomPerda" type="number" step="0.01" value="0" data-help="Percentual adicional para cobrir perdas durante o processo produtivo." />
           </div>
@@ -149,7 +153,7 @@
           </div>
         </form>
         <div id="bomMsg" class="help"></div>
-        <table id="tblBOM"><thead><tr><th>Produto</th><th>Item</th><th>Qtd</th><th>Perda padrão (%)</th><th>Remover</th></tr></thead><tbody></tbody></table>
+        <table id="tblBOM"><thead><tr><th>Produto</th><th>Item</th><th>Qtd</th><th>Qtd produzida</th><th>Perda padrão (%)</th><th>Remover</th></tr></thead><tbody></tbody></table>
       </div>
       <div class="card">
         <h3>Subprodutos / Co-produtos</h3>
@@ -406,7 +410,7 @@
             <input id="bomLookup" placeholder="Produto (código)" data-help="Informe o código do produto para consultar sua estrutura cadastral.">
             <button id="btnLoadBOM" class="btn btn-outline">Carregar BOM</button>
           </div>
-          <table id="tblBOMView"><thead><tr><th>Item</th><th>Qtd por unid.</th><th>Perda padrão (%)</th></tr></thead><tbody></tbody></table>
+          <table id="tblBOMView"><thead><tr><th>Item</th><th>Qtd por unid.</th><th>Qtd produzida</th><th>Perda padrão (%)</th></tr></thead><tbody></tbody></table>
         </div>
         <div class="card">
           <h3>Ordens de Produção</h3>
@@ -514,7 +518,7 @@ coleções principais:
 - conversoesUM/{item}
   - umBase, fatores[]
 - bom/{produto}/componentes/{item}
-  - qtd, perdaPadraoPct
+  - qtd, qtdProduzida, perdaPadraoPct
  - subprodutos/{produto}/itens/{id}
   - item, qtdPorUnid
  - op/{id}

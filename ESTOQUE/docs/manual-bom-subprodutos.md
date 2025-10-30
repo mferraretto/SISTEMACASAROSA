@@ -29,11 +29,12 @@ O cartão **Estrutura (BOM) de produto** contém um formulário para adicionar c
 - **Produto (código):** informe o código do produto acabado. O sistema converte automaticamente para letras maiúsculas ao salvar.【F:ESTOQUE/app.html†L126-L150】【F:ESTOQUE/app.js†L375-L386】
 - **Item/insumo:** código do componente que será baixado do estoque durante a produção.【F:ESTOQUE/app.html†L126-L150】【F:ESTOQUE/app.js†L375-L386】
 - **Quantidade por produto:** quantidade consumida do componente para fabricar uma unidade do produto. Aceita casas decimais com quatro dígitos.【F:ESTOQUE/app.html†L126-L150】【F:ESTOQUE/app.js†L375-L386】
+- **Qtd produzida com o insumo:** volume do produto final obtido quando este insumo é consumido. Utilize para registrar rendimentos específicos, como metros produzidos a partir de uma chapa.【F:ESTOQUE/app.html†L126-L150】【F:ESTOQUE/app.js†L375-L408】
 - **Perda padrão (%):** percentual adicional aplicado automaticamente no consumo para cobrir perdas de processo.【F:ESTOQUE/app.html†L126-L150】【F:ESTOQUE/app.js†L375-L386】
 
 ### 4.2 Salvando e revisando a BOM
 1. Preencha todos os campos e clique em **Adicionar à BOM**. O sistema grava o componente na coleção `bom/{produto}/componentes` e limpa o formulário para o próximo item.【F:ESTOQUE/app.html†L145-L150】【F:ESTOQUE/app.js†L375-L386】
-2. A tabela logo abaixo é atualizada automaticamente com os componentes atuais. Cada linha mostra o produto, o item, a quantidade e a perda padrão configurada.【F:ESTOQUE/app.html†L148-L150】【F:ESTOQUE/app.js†L388-L408】
+2. A tabela logo abaixo é atualizada automaticamente com os componentes atuais. Cada linha mostra o produto, o item, a quantidade consumida, a quantidade produzida com o insumo e a perda padrão configurada.【F:ESTOQUE/app.html†L148-L150】【F:ESTOQUE/app.js†L388-L408】
 3. Para remover um componente, clique em **Remover** na linha correspondente. O registro é marcado como excluído e a tabela é recarregada.【F:ESTOQUE/app.html†L148-L150】【F:ESTOQUE/app.js†L410-L412】
 4. Utilize o botão **Carregar BOM** (na seção *BOM do produto (visualização)*) para consultar a ficha técnica de um produto sem alterá-la. Informe o código em *Produto (código)* e clique no botão para preencher a grade somente leitura.【F:ESTOQUE/app.html†L401-L406】【F:ESTOQUE/app.js†L415-L427】
 
