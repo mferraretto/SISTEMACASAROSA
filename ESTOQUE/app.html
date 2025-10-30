@@ -88,7 +88,10 @@
             <label>Observações</label>
             <textarea id="iObs" rows="2" data-help="Notas adicionais sobre o item, como fornecedor preferencial ou cuidados de armazenamento."></textarea>
             <br>
-            <button class="btn btn-primary" type="submit">Salvar item</button>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="btnSalvarItem">Salvar item</button>
+              <button class="btn btn-outline hidden" type="button" id="btnCancelarItem">Cancelar edição</button>
+            </div>
             <span id="itemMsg" class="help"></span>
           </form>
         </div>

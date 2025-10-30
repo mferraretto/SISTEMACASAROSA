@@ -35,7 +35,7 @@ a{color:var(--rosa);text-decoration:none}
 .kpi .value{font-size:28px;font-weight:800}
 .kpi .label{font-size:12px;color:#666}
 .badge{display:inline-block;padding:2px 8px;border-radius: 999px;font-size:12px;border:1px solid var(--borda);background:#fff}
-.btn{
+.btn{ 
   appearance:none;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer
 }
 .btn-primary{background:var(--rosa);color:white}
@@ -53,9 +53,11 @@ label{font-size:12px;color:#555}
 input,select,textarea{
   width:100%;padding:10px;border-radius:10px;border:1px solid var(--borda);background:#fff
 }
+.form-actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{padding:10px;border-bottom:1px solid var(--borda);text-align:left}
 thead th{background:#fafbff}
+.table-actions{display:flex;gap:6px;flex-wrap:wrap}
 .highlight{background:#fffbec}
 .help{font-size:12px;color:#666}
 .help strong{color:var(--grafite)}

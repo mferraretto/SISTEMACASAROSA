@@ -22,7 +22,8 @@ const state = {
   enderecosMap: new Map(),
   conversoes: new Map(),
   ops: [],
-  opsMap: new Map()
+  opsMap: new Map(),
+  itemEditando: null
 };
 
 const CAPACIDADE_MAQUINAS = {
@@ -128,7 +129,12 @@ onAuthStateChanged(auth, async (user)=>{
 // ----------------- ITENS -----------------
 $('frmItem').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const codigo = $('iCodigo').value.trim().toUpperCase();
+  const rawCodigo = $('iCodigo').value.trim();
+  if(!rawCodigo){
+    $('itemMsg').textContent = 'Informe o código do item.';
+    return;
+  }
+  const codigo = rawCodigo.toUpperCase();
   const desc = $('iDesc').value.trim();
   const umBase = $('iUM').value;
   const custo = Number($('iCusto').value||0);
@@ -139,16 +145,23 @@ $('frmItem').addEventListener('submit', async (e)=>{
     codigo, descricao:desc, umBase, custoMedio:custo, min, estoqueTotal: 0, obs,
     atualizadoEm:F.serverTimestamp()
   }, {merge:true});
-  $('itemMsg').textContent = 'Item salvo.';
+  $('itemMsg').textContent = state.itemEditando ? 'Item atualizado.' : 'Item salvo.';
   await garantirConversaoPadrao(codigo, umBase);
   await carregarConversoes();
   atualizarConversaoSelect();
   await listarItens();
-  e.target.reset();
+  if(state.itemEditando){
+    cancelarEdicaoItem({limparMensagem:false});
+  } else {
+    e.target.reset();
+  }
 });
 
 $('btnReloadItens').addEventListener('click', listarItens);
 $('buscaItem').addEventListener('input', listarItens);
+if($('btnCancelarItem')){
+  $('btnCancelarItem').addEventListener('click', ()=>cancelarEdicaoItem());
+}
 if($('fDeposito')){
   $('fDeposito').addEventListener('change', ()=>{
     preencherEnderecos('fEndereco', $('fDeposito').value, {includeTodos:true});
@@ -250,39 +263,110 @@ async function listarItens(){
   const term = $('buscaItem').value?.trim().toLowerCase() || '';
   const filtroDep = $('fDeposito')?.value || '';
   const filtroEnd = $('fEndereco')?.value || '';
-  const q = F.query(F.collection(db,'itens'), F.orderBy('codigo'));
-  const snap = await F.getDocs(q);
-  const tbody = $('tblItens').querySelector('tbody');
-  tbody.innerHTML = '';
-  let count=0, saldo=0, valor=0;
-  for(const doc of snap.docs){
-    const it = doc.data();
-    if(it.__deleted) continue;
-    if(term && !(it.codigo.toLowerCase().includes(term) || (it.descricao||'').toLowerCase().includes(term))) continue;
-    const {total} = await obterSaldoItem(doc.id, filtroDep, filtroEnd);
-    const estoqueTotal = Number(total||0);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${it.codigo}</td>
-                    <td>${it.descricao||''}</td>
-                    <td>${it.umBase||''}</td>
-                    <td>${estoqueTotal.toFixed(3)}</td>
-                    <td>${(it.min||0)}</td>
-                    <td>R$ ${(it.custoMedio||0).toFixed(2)}</td>
-                    <td><button data-cod="${it.codigo}" class="btn btn-outline btnDel">Del</button></td>`;
-    tbody.appendChild(tr);
-    count++; saldo += estoqueTotal; valor += estoqueTotal*(it.custoMedio||0);
+  try{
+    const q = F.query(F.collection(db,'itens'), F.orderBy('codigo'));
+    const snap = await F.getDocs(q);
+    const tbody = $('tblItens').querySelector('tbody');
+    tbody.innerHTML = '';
+    let count=0, saldo=0, valor=0;
+    for(const doc of snap.docs){
+      const it = doc.data();
+      if(it.__deleted) continue;
+      if(term && !(it.codigo.toLowerCase().includes(term) || (it.descricao||'').toLowerCase().includes(term))) continue;
+      let estoqueTotal = 0;
+      try{
+        const {total} = await obterSaldoItem(doc.id, filtroDep, filtroEnd);
+        estoqueTotal = Number(total||0);
+      }catch(err){
+        console.error('Erro ao obter saldo do item', doc.id, err);
+        estoqueTotal = Number(it.estoqueTotal||0);
+      }
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${it.codigo}</td>
+                      <td>${it.descricao||''}</td>
+                      <td>${it.umBase||''}</td>
+                      <td>${estoqueTotal.toFixed(3)}</td>
+                      <td>${(it.min||0)}</td>
+                      <td>R$ ${(it.custoMedio||0).toFixed(2)}</td>
+                      <td class="table-actions">
+                        <button data-cod="${it.codigo}" class="btn btn-outline btnEdit">Editar</button>
+                        <button data-cod="${it.codigo}" class="btn btn-outline btnDel">Excluir</button>
+                      </td>`;
+      tbody.appendChild(tr);
+      count++; saldo += estoqueTotal; valor += estoqueTotal*(it.custoMedio||0);
+    }
+    if(count===0){
+      tbody.insertAdjacentHTML('beforeend', '<tr><td colspan="7">Nenhum item cadastrado.</td></tr>');
+    }
+    $('kpiItens').textContent = count;
+    $('kpiSaldo').textContent = saldo.toFixed(3);
+    $('kpiValor').textContent = 'R$ ' + valor.toFixed(2);
+    tbody.querySelectorAll('.btnDel').forEach(b=>b.addEventListener('click',()=>delItem(b.dataset.cod)));
+    tbody.querySelectorAll('.btnEdit').forEach(b=>b.addEventListener('click',()=>editarItem(b.dataset.cod)));
+  }catch(err){
+    console.error('Erro ao listar itens', err);
+    $('itemMsg').textContent = 'Não foi possível carregar os itens. Tente novamente.';
   }
-  $('kpiItens').textContent = count;
-  $('kpiSaldo').textContent = saldo.toFixed(3);
-  $('kpiValor').textContent = 'R$ ' + valor.toFixed(2);
-  tbody.querySelectorAll('.btnDel').forEach(b=>b.addEventListener('click',()=>delItem(b.dataset.cod)));
 }
 
 async function delItem(cod){
   if(!confirm('Remover item '+cod+'?')) return;
   await F.setDoc(F.doc(db,'itens',cod), { __deleted:true }, {merge:true});
   // Em produção, trocar por FLAG e filtro; a exclusão física requer apagar referência segura.
+  if(state.itemEditando === cod){
+    cancelarEdicaoItem();
+  }
   await listarItens();
+}
+
+async function editarItem(cod){
+  try{
+    const snap = await F.getDoc(F.doc(db,'itens', cod));
+    if(!snap.exists()){
+      $('itemMsg').textContent = 'Item não encontrado.';
+      return;
+    }
+    const dados = snap.data();
+    state.itemEditando = cod;
+    $('iCodigo').value = cod;
+    $('iCodigo').disabled = true;
+    $('iDesc').value = dados.descricao||'';
+    const um = dados.umBase || 'UN';
+    if($('iUM').querySelector(`option[value="${um}"]`)){
+      $('iUM').value = um;
+    } else {
+      $('iUM').value = 'UN';
+    }
+    $('iCusto').value = Number(dados.custoMedio||0);
+    $('iMin').value = Number(dados.min||0);
+    $('iObs').value = dados.obs||'';
+    $('btnSalvarItem').textContent = 'Atualizar item';
+    $('btnCancelarItem').classList.remove('hidden');
+    $('itemMsg').textContent = `Editando ${cod}. Altere os dados e salve.`;
+  }catch(err){
+    console.error('Erro ao carregar item para edição', err);
+    $('itemMsg').textContent = 'Erro ao carregar item para edição.';
+  }
+}
+
+function cancelarEdicaoItem({limparMensagem=true}={}){
+  state.itemEditando = null;
+  const form = $('frmItem');
+  if(form){
+    form.reset();
+  }
+  if($('iCodigo')){
+    $('iCodigo').disabled = false;
+  }
+  if($('btnSalvarItem')){
+    $('btnSalvarItem').textContent = 'Salvar item';
+  }
+  if($('btnCancelarItem')){
+    $('btnCancelarItem').classList.add('hidden');
+  }
+  if(limparMensagem && $('itemMsg')){
+    $('itemMsg').textContent = '';
+  }
 }
 
 // ----------------- MOVIMENTAÇÕES -----------------
