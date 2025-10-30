@@ -9,6 +9,50 @@ const $ = (sel) => document.querySelector(sel);
 const byId = (id) => document.getElementById(id);
 
 const pages = ['dashboard','pagar','receber','conciliacao','centros','relatorios','config'];
+const ALLOWED_PROFILES = ['FINANCEIRO','COMPRAS'];
+
+function extractFinanceProfiles(value){
+  const profiles = [];
+  const pushString = (str)=>{
+    if(typeof str !== 'string') return;
+    const normalized = str.trim();
+    if(normalized) profiles.push(normalized.toUpperCase());
+  };
+
+  if(!value) return profiles;
+  if(typeof value === 'string'){
+    pushString(value);
+    return profiles;
+  }
+  if(Array.isArray(value)){
+    value.forEach(pushString);
+    return profiles;
+  }
+  if(typeof value === 'boolean'){
+    if(value) profiles.push('FINANCEIRO');
+    return profiles;
+  }
+  if(typeof value === 'object'){
+    Object.entries(value).forEach(([key,val])=>{
+      if(typeof val === 'boolean'){
+        if(val) pushString(key);
+        return;
+      }
+      if(Array.isArray(val)){
+        val.forEach(pushString);
+        return;
+      }
+      pushString(val);
+    });
+    return profiles;
+  }
+  return profiles;
+}
+
+function hasFinanceAccess(value){
+  const profiles = extractFinanceProfiles(value);
+  return profiles.some((p)=> ALLOWED_PROFILES.includes(p));
+}
 const now = new Date();
 byId('year').textContent = now.getFullYear();
 
@@ -44,8 +88,24 @@ btnLogin.addEventListener('click', async ()=>{
 });
 btnLogout.addEventListener('click', ()=> signOut(auth));
 
-onAuthStateChanged(auth, (user)=>{
+onAuthStateChanged(auth, async (user)=>{
   if(user){
+    try{
+      const profileRef = doc(db,'users', user.uid);
+      const profileSnap = await getDoc(profileRef);
+      const data = profileSnap.exists()? profileSnap.data(): null;
+      if(!data || !hasFinanceAccess(data.financeiro)){
+        alert('Acesso restrito. Este usuário não possui permissão para o Financeiro.');
+        await signOut(auth);
+        return;
+      }
+    }catch(err){
+      console.error('Falha ao validar permissões do usuário:', err);
+      alert('Não foi possível validar seu acesso ao Financeiro. Tente novamente ou contate o administrador.');
+      await signOut(auth);
+      return;
+    }
+
     userEmail.textContent = user.email || 'Usuário anônimo';
     btnLogin.classList.add('hidden');
     btnLogout.classList.remove('hidden');
