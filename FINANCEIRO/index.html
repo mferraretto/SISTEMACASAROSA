@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Casa Rosa • Financeiro</title>
+  <link rel="icon" href="data:,">
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              magenta: '#E6007E',
+              tiffany: '#0ABAB5',
+              amarelo: '#FFD400',
+              dark: '#1f2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root{
+      --brand-magenta:#E6007E;
+      --brand-tiffany:#0ABAB5;
+      --brand-amarelo:#FFD400;
+    }
+    .glass{
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(6px);
+    }
+    .card{ @apply rounded-2xl shadow p-4 bg-white; }
+    .btn{ @apply px-4 py-2 rounded-xl font-medium; }
+    .btn-primary{ background: var(--brand-magenta); color:white; }
+    .btn-secondary{ background: var(--brand-tiffany); color:white; }
+    .badge{ @apply text-xs px-2 py-1 rounded-full; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+  <div class="min-h-screen grid grid-cols-1 md:grid-cols-[260px_1fr]">
+    <!-- Sidebar -->
+    <aside class="bg-white border-r border-gray-200 p-4">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 rounded-xl" style="background:linear-gradient(135deg,var(--brand-magenta),var(--brand-tiffany));"></div>
+        <div>
+          <h1 class="font-bold leading-tight">Casa Rosa</h1>
+          <p class="text-xs text-gray-500">Financeiro Empresarial</p>
+        </div>
+      </div>
+      <nav class="space-y-1" id="nav">
+        <button data-page="dashboard" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 font-medium">📊 Dashboard</button>
+        <button data-page="pagar" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">📥 Contas a Pagar</button>
+        <button data-page="receber" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">💸 Contas a Receber</button>
+        <button data-page="conciliacao" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">🏦 Conciliação Bancária</button>
+        <button data-page="centros" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">🏷️ Centros de Custo</button>
+        <button data-page="relatorios" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">📈 Relatórios</button>
+        <button data-page="config" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100">⚙️ Configurações</button>
+      </nav>
+      <div class="mt-8 p-3 rounded-xl" style="background:linear-gradient(135deg,var(--brand-amarelo),#fffbe6);">
+        <p class="text-sm font-semibold">Dica de economia</p>
+        <p class="text-xs">Anexe imagens em <b>WEBP</b> para gastar menos Storage.</p>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="p-4 md:p-6 space-y-4">
+      <header class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold">Painel Financeiro</h2>
+          <p class="text-sm text-gray-600">Controle completo de Pagar, Receber, Fluxo e Anexos otimizados</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="userEmail" class="text-sm text-gray-600"></span>
+          <button id="btnLogin" class="btn btn-secondary">Entrar</button>
+          <button id="btnLogout" class="btn hidden">Sair</button>
+        </div>
+      </header>
+
+      <!-- Alerts -->
+      <section id="alerts" class="grid md:grid-cols-3 gap-3"></section>
+
+      <!-- Pages -->
+      <section id="page-dashboard" class="space-y-4"></section>
+
+      <section id="page-pagar" class="hidden space-y-4">
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Contas a Pagar</h3>
+            <div class="flex items-center gap-2">
+              <button id="btnNovaDespesa" class="btn btn-primary">+ Nova despesa</button>
+              <input id="filtroPagar" class="border rounded-lg px-3 py-2" placeholder="Buscar (fornecedor, categoria, centro de custo)" />
+            </div>
+          </div>
+          <div id="listaPagar" class="overflow-auto"></div>
+        </div>
+      </section>
+
+      <section id="page-receber" class="hidden space-y-4">
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Contas a Receber</h3>
+            <div class="flex items-center gap-2">
+              <button id="btnNovoReceber" class="btn btn-primary">+ Novo título</button>
+              <input id="filtroReceber" class="border rounded-lg px-3 py-2" placeholder="Buscar (cliente, canal, categoria)" />
+            </div>
+          </div>
+          <div id="listaReceber" class="overflow-auto"></div>
+        </div>
+      </section>
+
+      <section id="page-conciliacao" class="hidden space-y-4">
+        <div class="card space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">Conciliação Bancária</h3>
+            <div class="text-sm text-gray-600">Importe CSV do banco e reconcilie automaticamente</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="file" id="fileExtrato" accept=".csv" class="border rounded-lg px-3 py-2" />
+            <button id="btnImportarExtrato" class="btn btn-secondary">Importar extrato</button>
+            <button id="btnRodarConciliacao" class="btn btn-primary">Conciliar</button>
+          </div>
+          <div id="conciliacaoLog" class="text-xs text-gray-600 whitespace-pre-wrap"></div>
+        </div>
+      </section>
+
+      <section id="page-centros" class="hidden space-y-4">
+        <div class="card">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-semibold">Centros de Custo & Categorias</h3>
+            <div class="flex items-center gap-2">
+              <input id="novoCentro" class="border rounded-lg px-3 py-2" placeholder="Novo centro de custo" />
+              <button id="btnAddCentro" class="btn btn-secondary">Adicionar</button>
+              <input id="novaCategoria" class="border rounded-lg px-3 py-2" placeholder="Nova categoria" />
+              <button id="btnAddCategoria" class="btn btn-secondary">Adicionar</button>
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <h4 class="font-medium mb-2">Centros de custo</h4>
+              <ul id="listaCentros" class="space-y-1"></ul>
+            </div>
+            <div>
+              <h4 class="font-medium mb-2">Categorias</h4>
+              <ul id="listaCategorias" class="space-y-1"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-relatorios" class="hidden space-y-4">
+        <div class="card">
+          <h3 class="font-semibold mb-2">Fluxo de Caixa (30 dias)</h3>
+          <canvas id="graficoFluxo" height="140"></canvas>
+        </div>
+        <div class="grid md:grid-cols-3 gap-3">
+          <div class="card">
+            <h4 class="font-semibold">Top Despesas (mês)</h4>
+            <ul id="topDespesas" class="text-sm"></ul>
+          </div>
+          <div class="card">
+            <h4 class="font-semibold">Top Receitas (mês)</h4>
+            <ul id="topReceitas" class="text-sm"></ul>
+          </div>
+          <div class="card">
+            <h4 class="font-semibold">KPIs</h4>
+            <ul id="kpis" class="text-sm"></ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-config" class="hidden space-y-4">
+        <div class="card space-y-2">
+          <h3 class="font-semibold">Configurações</h3>
+          <label class="block">
+            <span class="text-sm">Empresa</span>
+            <input id="cfgEmpresa" class="border rounded-lg px-3 py-2 w-full" value="Casa Rosa" />
+          </label>
+          <label class="block">
+            <span class="text-sm">Conversão de imagens ao anexar</span>
+            <select id="cfgQualidade" class="border rounded-lg px-3 py-2">
+              <option value="0.8">WEBP 80% (recomendado)</option>
+              <option value="0.6">WEBP 60% (mais economia)</option>
+              <option value="1">Sem compressão (originais)</option>
+            </select>
+          </label>
+          <p class="text-xs text-gray-600">Imagens serão convertidas para WEBP com redução de tamanho antes do upload. PDFs e outros formatos são enviados como estão.</p>
+        </div>
+      </section>
+
+      <footer class="text-xs text-gray-500 py-6">
+        © <span id="year"></span> Casa Rosa • Financeiro — Feito com Firebase
+      </footer>
+    </main>
+  </div>
+
+  <!-- Firebase & libs -->
+  <script type="module" src="./firebase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script type="module" src="./utils.js"></script>
+  <script type="module" src="./compress.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
