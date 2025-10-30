@@ -756,42 +756,42 @@ function openBonusModal(existing) {
       <form class="grid" id="bonus-form" style="grid-template-columns:1fr 1fr;gap:1rem">
         <label class="stack">
           <span>Colaborador</span>
-          <select name="forUid" class="input" required>${getEmployeeOptions(defaults.forUid)}</select>
+          <select name="forUid" class="input" required data-help="Escolha o colaborador que receberá o bônus ou premiação.">${getEmployeeOptions(defaults.forUid)}</select>
         </label>
         <label class="stack">
           <span>Gestor responsável</span>
-          <input name="managerName" class="input" value="${defaults.managerName || ""}" readonly />
+          <input name="managerName" class="input" value="${defaults.managerName || ""}" readonly data-help="Gestor responsável vinculado ao colaborador; preenchido automaticamente." />
           <input type="hidden" name="managerUid" value="${defaults.managerUid || ""}" />
         </label>
         <label class="stack">
           <span>Tipo</span>
-          <select name="type" class="input" required>${getTypeOptions(defaults.type)}</select>
+          <select name="type" class="input" required data-help="Defina o tipo de bonificação (ex.: bônus, comissão, PLR).">${getTypeOptions(defaults.type)}</select>
         </label>
         <label class="stack">
           <span>Natureza</span>
-          <select name="nature" class="input" required>${getNatureOptions(defaults.nature)}</select>
+          <select name="nature" class="input" required data-help="Informe se o valor é remuneratório (impacta folha) ou indenizatório.">${getNatureOptions(defaults.nature)}</select>
         </label>
         <label class="stack">
           <span>Valor (R$)</span>
           <input type="number" step="0.01" min="0" name="value" class="input" value="${Number(defaults.value || 0).toFixed(
             2
-          )}" required />
+          )}" required data-help="Valor bruto do bônus que será pago ao colaborador em reais." />
         </label>
         <label class="stack">
           <span>Centro de Custo</span>
-          <input name="costCenter" class="input" value="${defaults.costCenter || ""}" required />
+          <input name="costCenter" class="input" value="${defaults.costCenter || ""}" required data-help="Centro de custo que arcará com o pagamento." />
         </label>
         <label class="stack">
           <span>Competência</span>
-          <input type="month" name="competence" class="input" value="${defaults.competence || ""}" required />
+          <input type="month" name="competence" class="input" value="${defaults.competence || ""}" required data-help="Competência (ano e mês) em que o bônus deve ser reconhecido." />
         </label>
         <label class="stack" style="grid-column:span 2">
           <span>Motivo/Justificativa</span>
-          <textarea name="reason" class="input" rows="4" minlength="10" required>${defaults.reason || ""}</textarea>
+          <textarea name="reason" class="input" rows="4" minlength="10" required data-help="Descreva a justificativa do bônus, metas atingidas ou critérios de concessão.">${defaults.reason || ""}</textarea>
         </label>
         <label class="stack" style="grid-column:span 2">
           <span>Anexo (opcional)</span>
-          <input type="file" class="input" accept="application/pdf,image/*" />
+          <input type="file" class="input" accept="application/pdf,image/*" data-help="Anexe documentos comprobatórios, como aprovações ou planilhas de cálculo." />
         </label>
         <div class="stack" style="grid-column:span 2">
           <button type="submit" class="btn">${existing ? "Salvar alterações" : "Criar lançamento"}</button>
@@ -869,11 +869,11 @@ function renderAdminSection(container) {
       <form id="bonus-filters" class="grid" style="grid-template-columns:repeat(6,1fr);gap:1rem">
         <label class="stack">
           <span>Período (competência)</span>
-          <input type="month" name="period" class="input" value="${currentFilters.period || ""}" />
+          <input type="month" name="period" class="input" value="${currentFilters.period || ""}" data-help="Filtra lançamentos pela competência (ano e mês)." />
         </label>
         <label class="stack">
           <span>Status</span>
-          <select name="status" class="input">
+          <select name="status" class="input" data-help="Mostra apenas lançamentos com o status selecionado (rascunho, aprovado, pago etc.).">
             <option value="">Todos</option>
             ${STATUS_FLOW_ORDER.map(
               (status) =>
@@ -885,7 +885,7 @@ function renderAdminSection(container) {
         </label>
         <label class="stack">
           <span>Tipo</span>
-          <select name="type" class="input">
+          <select name="type" class="input" data-help="Filtra os lançamentos por tipo de bonificação.">
             <option value="">Todos</option>
             ${Object.entries(TYPE_LABEL)
               .map(
@@ -897,7 +897,7 @@ function renderAdminSection(container) {
         </label>
         <label class="stack">
           <span>Centro de Custo</span>
-          <select name="costCenter" class="input">
+          <select name="costCenter" class="input" data-help="Restringe a visão a um centro de custo específico.">
             <option value="">Todos</option>
             ${costCenters
               .map(
@@ -909,7 +909,7 @@ function renderAdminSection(container) {
         </label>
         <label class="stack">
           <span>Gestor</span>
-          <select name="manager" class="input">
+          <select name="manager" class="input" data-help="Exibe apenas bônus associados ao gestor escolhido.">
             <option value="">Todos</option>
             ${managers
               .map(
@@ -921,7 +921,7 @@ function renderAdminSection(container) {
         </label>
         <label class="stack">
           <span>Colaborador</span>
-          <select name="employee" class="input">
+          <select name="employee" class="input" data-help="Mostra lançamentos de um colaborador específico.">
             <option value="">Todos</option>
             ${employees
               .map(
@@ -935,7 +935,7 @@ function renderAdminSection(container) {
           <span>Busca livre</span>
           <input type="search" name="search" class="input" placeholder="Motivo, colaborador, gestor..." value="${
             currentFilters.searchRaw || ""
-          }" />
+          }" data-help="Busca por palavras-chave em motivos, nomes ou gestores." />
         </label>
       </form>
     </div>
@@ -975,7 +975,7 @@ function renderAdminSection(container) {
                   <tr data-id="${item.id}">
                     <td>${
                       canSelect
-                        ? `<input type="checkbox" data-bonus-action="select" value="${item.id}" ${
+                        ? `<input type="checkbox" data-bonus-action="select" value="${item.id}" data-help="Seleciona o lançamento para aprovação em lote" ${
                             currentSelection.has(item.id) ? "checked" : ""
                           } />`
                         : ""
@@ -1528,7 +1528,7 @@ function openImportModal() {
       <h2>Importar CSV</h2>
       <p class="helper">Campos obrigatórios: email, tipo, valor, centro, competencia, motivo. Separador ; ou ,.</p>
       <form id="bonus-import-form" class="stack">
-        <input type="file" class="input" accept=".csv,text/csv" required />
+        <input type="file" class="input" accept=".csv,text/csv" required data-help="Selecione o arquivo CSV contendo os lançamentos de bônus para importar." />
         <div class="stack" style="flex-direction:row;gap:.5rem">
           <button type="submit" class="btn">Importar</button>
           <button type="button" class="btn ghost" id="cancel-import">Cancelar</button>
@@ -1582,14 +1582,14 @@ function openDecisionModal(id, mode) {
         </div>
         ${
           mode === "approve"
-            ? `<label class="stack"><span>Valor aprovado (R$)</span><input type="number" step="0.01" min="0" name="approvedValue" class="input" value="${
+            ? `<label class=\"stack\"><span>Valor aprovado (R$)</span><input type=\"number\" step=\"0.01\" min=\"0\" name=\"approvedValue\" class=\"input\" value=\"${
                 bonus.value.toFixed(2)
-              }" required /></label>`
+              }\" required data-help=\"Confirme o valor que será pago após a análise do gestor.\" /></label>`
             : ""
         }
         <label class="stack">
           <span>Decisão / Motivo do Gestor</span>
-          <textarea name="decision" class="input" rows="4" minlength="5" required></textarea>
+          <textarea name="decision" class="input" rows="4" minlength="5" required data-help="Explique a decisão do gestor, incluindo condições ou motivos."></textarea>
         </label>
         <div class="stack" style="flex-direction:row;gap:.5rem">
           <button type="submit" class="btn">${mode === "approve" ? "Aprovar" : "Rejeitar"}</button>

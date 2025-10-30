@@ -61,17 +61,17 @@
             <div class="grid">
               <div>
                 <label>Código</label>
-                <input id="iCodigo" placeholder="SKU / Código interno" required>
+                <input id="iCodigo" placeholder="SKU / Código interno" required data-help="Identificador único do item, como SKU ou código interno." />
               </div>
               <div>
                 <label>Descrição</label>
-                <input id="iDesc" placeholder="Ex: Chapa MDF 9mm 2,75x1,83" required>
+                <input id="iDesc" placeholder="Ex: Chapa MDF 9mm 2,75x1,83" required data-help="Descrição detalhada que facilite a identificação do item pelos usuários." />
               </div>
             </div>
             <div class="grid">
               <div>
                 <label>Unidade</label>
-                <select id="iUM">
+                <select id="iUM" data-help="Unidade de medida principal utilizada para controlar o estoque.">
                   <option value="UN">UN</option>
                   <option value="PC">PC</option>
                   <option value="KG">KG</option>
@@ -80,13 +80,13 @@
               </div>
               <div>
                 <label>Custo médio (R$)</label>
-                <input id="iCusto" type="number" step="0.01" value="0">
+                <input id="iCusto" type="number" step="0.01" value="0" data-help="Informe o custo médio em reais para cálculo de valor de estoque." />
               </div>
             </div>
             <label>Estoque mínimo</label>
-            <input id="iMin" type="number" step="0.01" value="0">
+            <input id="iMin" type="number" step="0.01" value="0" data-help="Quantidade mínima desejada para disparar alertas de reposição." />
             <label>Observações</label>
-            <textarea id="iObs" rows="2"></textarea>
+            <textarea id="iObs" rows="2" data-help="Notas adicionais sobre o item, como fornecedor preferencial ou cuidados de armazenamento."></textarea>
             <br>
             <button class="btn btn-primary" type="submit">Salvar item</button>
             <span id="itemMsg" class="help"></span>
@@ -95,9 +95,9 @@
         <div class="card">
           <h3>Itens cadastrados</h3>
           <div class="toolbar">
-            <select id="fDeposito"></select>
-            <select id="fEndereco"></select>
-            <input id="buscaItem" placeholder="Buscar por código/descrição">
+            <select id="fDeposito" data-help="Filtra os itens pelo depósito selecionado."></select>
+            <select id="fEndereco" data-help="Exibe apenas itens localizados no endereço escolhido."></select>
+            <input id="buscaItem" placeholder="Buscar por código/descrição" data-help="Pesquise itens digitando parte do código ou da descrição." />
             <button id="btnReloadItens" class="btn btn-outline">Atualizar</button>
           </div>
           <table id="tblItens"><thead><tr><th>Código</th><th>Descrição</th><th>UM base</th><th>Estoque</th><th>Min</th><th>Custo</th><th>Ações</th></tr></thead><tbody></tbody></table>
@@ -108,11 +108,11 @@
         <div class="grid">
           <div>
             <label>Item</label>
-            <select id="convItem"></select>
+            <select id="convItem" data-help="Escolha o item cadastrado para visualizar suas conversões de unidade."></select>
           </div>
           <div>
             <label>Digite quantidade (ex.: 3 chapas)</label>
-            <input id="convEntrada" placeholder="Quantidade + unidade alternativa">
+            <input id="convEntrada" placeholder="Quantidade + unidade alternativa" data-help="Digite a quantidade seguida da unidade alternativa (ex.: 3 chapas)." />
           </div>
           <div>
             <label>&nbsp;</label>
@@ -127,19 +127,19 @@
         <form id="frmBOM" class="grid">
           <div>
             <label>Produto (código)</label>
-            <input id="bomProduto" required placeholder="EX: KIT-TRIO-CILINDRO">
+            <input id="bomProduto" required placeholder="EX: KIT-TRIO-CILINDRO" data-help="Informe o código do produto acabado que utilizará a estrutura de materiais." />
           </div>
           <div>
             <label>Item/insumo</label>
-            <input id="bomItem" required placeholder="EX: MDF-9MM-PLACA">
+            <input id="bomItem" required placeholder="EX: MDF-9MM-PLACA" data-help="Digite o código do componente ou insumo que compõe o produto." />
           </div>
           <div>
             <label>Quantidade por produto</label>
-            <input id="bomQtd" type="number" step="0.0001" value="1">
+            <input id="bomQtd" type="number" step="0.0001" value="1" data-help="Quantidade do insumo necessária para fabricar uma unidade do produto." />
           </div>
           <div>
             <label>Perda padrão (%)</label>
-            <input id="bomPerda" type="number" step="0.01" value="0">
+            <input id="bomPerda" type="number" step="0.01" value="0" data-help="Percentual adicional para cobrir perdas durante o processo produtivo." />
           </div>
           <div>
             <button class="btn btn-outline" type="submit" style="margin-top:22px">Adicionar à BOM</button>
@@ -153,15 +153,15 @@
         <form id="frmSubproduto" class="grid">
           <div>
             <label>Produto (código)</label>
-            <input id="subProduto" required placeholder="EX: KIT-TRIO-CILINDRO">
+            <input id="subProduto" required placeholder="EX: KIT-TRIO-CILINDRO" data-help="Informe o produto principal que gera o subproduto." />
           </div>
           <div>
             <label>Item subproduto</label>
-            <input id="subItem" required placeholder="EX: SUCATA-MDF">
+            <input id="subItem" required placeholder="EX: SUCATA-MDF" data-help="Código do item que será tratado como subproduto ou co-produto." />
           </div>
           <div>
             <label>Qtd por unidade produzida</label>
-            <input id="subQtd" type="number" step="0.0001" value="0">
+            <input id="subQtd" type="number" step="0.0001" value="0" data-help="Quantidade gerada de subproduto para cada unidade produzida." />
           </div>
           <div>
             <button class="btn btn-outline" type="submit" style="margin-top:22px">Adicionar subproduto</button>
@@ -169,7 +169,7 @@
         </form>
         <div id="subMsg" class="help"></div>
         <div class="toolbar">
-          <input id="subProdutoLookup" placeholder="Produto (código)">
+          <input id="subProdutoLookup" placeholder="Produto (código)" data-help="Informe o código do produto para listar os subprodutos cadastrados." />
           <button id="btnLoadSubprodutos" class="btn btn-outline">Listar subprodutos</button>
         </div>
         <table id="tblSubprodutos"><thead><tr><th>Produto</th><th>Item</th><th>Qtd/Unid.</th><th>Remover</th></tr></thead><tbody></tbody></table>
@@ -184,7 +184,7 @@
             <div class="grid">
               <div>
                 <label>Tipo</label>
-                <select id="mTipo">
+                <select id="mTipo" data-help="Defina se a movimentação é entrada, saída ou transferência.">
                   <option value="ENTRADA">ENTRADA (compra/devolução)</option>
                   <option value="SAIDA">SAÍDA (consumo/venda)</option>
                   <option value="TRANSFER">TRANSFERÊNCIA</option>
@@ -192,66 +192,66 @@
               </div>
               <div>
                 <label>Código do item</label>
-                <input id="mItem" required placeholder="ex: MDF-9MM-PLACA">
+                <input id="mItem" required placeholder="ex: MDF-9MM-PLACA" data-help="Informe o código do item que será movimentado." />
               </div>
             </div>
             <div class="grid">
               <div>
                 <label>Depósito</label>
-                <select id="mDeposito"></select>
+                <select id="mDeposito" data-help="Selecione o depósito de origem onde o item está localizado."></select>
               </div>
               <div>
                 <label>Endereço</label>
-                <select id="mEndereco"></select>
+                <select id="mEndereco" data-help="Escolha o endereço físico (rua/prateleira) dentro do depósito de origem."></select>
               </div>
             </div>
             <div id="destinoTransfer" class="grid hidden">
               <div>
                 <label>Depósito destino</label>
-                <select id="mDepositoDestino"></select>
+                <select id="mDepositoDestino" data-help="Para transferências, indique o depósito que receberá o item."></select>
               </div>
               <div>
                 <label>Endereço destino</label>
-                <select id="mEnderecoDestino"></select>
+                <select id="mEnderecoDestino" data-help="Informe o endereço de estocagem no depósito de destino."></select>
               </div>
             </div>
             <div class="grid">
               <div>
                 <label>Quantidade</label>
-                <input id="mQtd" type="number" step="0.0001" required value="1">
+                <input id="mQtd" type="number" step="0.0001" required value="1" data-help="Informe a quantidade movimentada utilizando a unidade padrão do item." />
               </div>
               <div>
                 <label>Custo unitário (R$)</label>
-                <input id="mCusto" type="number" step="0.01" value="0">
-              </div>
+                <input id="mCusto" type="number" step="0.01" value="0" data-help="Para entradas, defina o custo unitário utilizado na valorização do estoque." />
+            </div>
             </div>
             <div class="grid">
               <div>
                 <label>Centro de custo</label>
-                <input id="mCC" placeholder="ex: PRODUCAO / LOJA">
+                <input id="mCC" placeholder="ex: PRODUCAO / LOJA" data-help="Registre o centro de custo ou setor que consumirá o item." />
               </div>
               <div>
                 <label>Obs</label>
-                <input id="mObs" placeholder="motivo/nota">
-              </div>
+                <input id="mObs" placeholder="motivo/nota" data-help="Adicione observações como número de nota fiscal ou motivo da movimentação." />
+            </div>
             </div>
             <div class="grid">
               <div>
                 <label>Lote (opcional)</label>
-                <input id="mLote" placeholder="ex: L23-05">
+                <input id="mLote" placeholder="ex: L23-05" data-help="Informe o lote de fabricação para rastreabilidade, se aplicável." />
               </div>
               <div>
                 <label>Validade</label>
-                <input id="mValidade" type="date">
+                <input id="mValidade" type="date" data-help="Data de validade associada ao lote movimentado." />
               </div>
             </div>
             <div class="grid">
               <div class="checkbox">
-                <label><input type="checkbox" id="mFIFO"> Usar FIFO / PEPS</label>
+                <label><input type="checkbox" id="mFIFO" data-help="Marque para que o sistema sugira lotes seguindo a regra FIFO/PEPS."> Usar FIFO / PEPS</label>
               </div>
               <div>
                 <label>Causa da baixa</label>
-                <select id="mCausa">
+                <select id="mCausa" data-help="Classifique a saída para relatórios de perdas e consumo.">
                   <option value="">-- selecionar --</option>
                   <option value="CONSUMO">Consumo</option>
                   <option value="PERDA">Perda</option>
@@ -262,11 +262,11 @@
             </div>
             <div class="grid">
               <div class="checkbox">
-                <label><input type="checkbox" id="mReserva"> Registrar como reserva</label>
+                <label><input type="checkbox" id="mReserva" data-help="Habilite para bloquear o saldo até que a reserva seja atendida."> Registrar como reserva</label>
               </div>
               <div>
                 <label>Pedido / Referência</label>
-                <input id="mPedidoRef" placeholder="ex: PED-123">
+                <input id="mPedidoRef" placeholder="ex: PED-123" data-help="Associe a movimentação a um pedido, ordem de produção ou referência interna." />
               </div>
             </div>
             <br>
@@ -277,8 +277,8 @@
         <div class="card">
           <h3>Últimas movimentações</h3>
           <div class="toolbar">
-            <select id="fMovDeposito"></select>
-            <select id="fMovEndereco"></select>
+            <select id="fMovDeposito" data-help="Filtra movimentações pelo depósito de origem/destino."></select>
+            <select id="fMovEndereco" data-help="Refina o histórico pelo endereço específico dentro do depósito."></select>
           </div>
           <table id="tblMov"><thead><tr><th>Data</th><th>Tipo</th><th>Item</th><th>Qtd</th><th>Depósito</th><th>Endereço</th><th>Lote</th><th>Causa</th><th>Obs/Status</th></tr></thead><tbody></tbody></table>
         </div>
@@ -296,12 +296,12 @@
           <form id="frmNovaOP">
             <div class="grid">
               <div>
-                <label>Produto (código)</label>
-                <input id="opProduto" required placeholder="KIT-TRIO-CILINDRO">
-              </div>
-              <div>
-                <label>Quantidade planejada</label>
-                <input id="opQtdPlanejada" type="number" step="0.0001" value="1">
+            <label>Produto (código)</label>
+            <input id="opProduto" required placeholder="KIT-TRIO-CILINDRO" data-help="Informe o código do produto acabado que terá uma ordem gerada." />
+          </div>
+          <div>
+            <label>Quantidade planejada</label>
+            <input id="opQtdPlanejada" type="number" step="0.0001" value="1" data-help="Quantidade programada para produção nesta ordem." />
               </div>
             </div>
             <button class="btn btn-primary" type="submit">Criar OP</button>
@@ -315,11 +315,11 @@
             <div class="grid">
               <div>
                 <label>Ordem</label>
-                <select id="opParcialOP"></select>
+                <select id="opParcialOP" data-help="Selecione a ordem de produção que terá uma produção parcial registrada."></select>
               </div>
               <div>
                 <label>Quantidade produzida</label>
-                <input id="opQtdParcial" type="number" step="0.0001" value="1">
+                <input id="opQtdParcial" type="number" step="0.0001" value="1" data-help="Informe a quantidade efetivamente produzida nesta etapa parcial." />
               </div>
             </div>
             <button class="btn btn-primary" type="submit">Registrar produção parcial</button>
@@ -335,11 +335,11 @@
             <div class="grid">
               <div>
                 <label>Ordem</label>
-                <select id="opEtapaOP"></select>
+                <select id="opEtapaOP" data-help="Selecione a ordem de produção para registrar a etapa executada."></select>
               </div>
               <div>
                 <label>Etapa</label>
-                <select id="opEtapaNome">
+                <select id="opEtapaNome" data-help="Identifique a fase da produção (cortar, lixar, pintar, etc.).">
                   <option value="cortar">Cortar</option>
                   <option value="lixar">Lixar</option>
                   <option value="pintar">Pintar</option>
@@ -351,7 +351,7 @@
             <div class="grid">
               <div>
                 <label>Máquina</label>
-                <select id="opEtapaMaquina">
+                <select id="opEtapaMaquina" data-help="Informe a máquina ou estação onde a etapa foi realizada.">
                   <option value="CNC-01">CNC-01</option>
                   <option value="LIXA-01">LIXA-01</option>
                   <option value="PINT-01">PINT-01</option>
@@ -360,27 +360,27 @@
               </div>
               <div>
                 <label>Operador</label>
-                <input id="opEtapaOperador" placeholder="Nome do operador">
+                <input id="opEtapaOperador" placeholder="Nome do operador" data-help="Nome do operador responsável pela etapa." />
               </div>
             </div>
             <div class="grid">
               <div>
                 <label>Início</label>
-                <input id="opEtapaInicio" type="datetime-local" required>
+                <input id="opEtapaInicio" type="datetime-local" required data-help="Data e hora de início da etapa executada." />
               </div>
               <div>
                 <label>Fim</label>
-                <input id="opEtapaFim" type="datetime-local" required>
+                <input id="opEtapaFim" type="datetime-local" required data-help="Data e hora de término da etapa executada." />
               </div>
             </div>
             <div class="grid">
               <div>
                 <label>Perda real (unidades)</label>
-                <input id="opEtapaPerda" type="number" step="0.0001" value="0">
+                <input id="opEtapaPerda" type="number" step="0.0001" value="0" data-help="Quantidade perdida ou sucata gerada nesta etapa." />
               </div>
               <div>
                 <label>Observações</label>
-                <input id="opEtapaObs" placeholder="Notas / ocorrências">
+                <input id="opEtapaObs" placeholder="Notas / ocorrências" data-help="Registre ocorrências, problemas ou apontamentos relevantes da etapa." />
               </div>
             </div>
             <button class="btn btn-outline" type="submit">Registrar etapa</button>
@@ -391,7 +391,7 @@
         <div class="card">
           <h3>Etapas registradas</h3>
           <div class="toolbar">
-            <select id="opEtapasFiltro"></select>
+            <select id="opEtapasFiltro" data-help="Filtra o histórico de etapas por ordem de produção."></select>
           </div>
           <table id="tblEtapasOP"><thead><tr><th>Início</th><th>Fim</th><th>Etapa</th><th>Operador</th><th>Máquina</th><th>Perda</th><th>Obs</th></tr></thead><tbody></tbody></table>
         </div>
@@ -400,7 +400,7 @@
         <div class="card">
           <h3>BOM do produto (visualização)</h3>
           <div class="toolbar">
-            <input id="bomLookup" placeholder="Produto (código)">
+            <input id="bomLookup" placeholder="Produto (código)" data-help="Informe o código do produto para consultar sua estrutura cadastral.">
             <button id="btnLoadBOM" class="btn btn-outline">Carregar BOM</button>
           </div>
           <table id="tblBOMView"><thead><tr><th>Item</th><th>Qtd por unid.</th><th>Perda padrão (%)</th></tr></thead><tbody></tbody></table>
@@ -418,19 +418,19 @@
         <form id="frmInv" class="grid">
           <div>
             <label>Código do item</label>
-            <input id="invItem" required>
+            <input id="invItem" required data-help="Informe o código do item contado fisicamente." />
           </div>
           <div>
             <label>Quantidade contada</label>
-            <input id="invQtd" type="number" step="0.0001" required>
+            <input id="invQtd" type="number" step="0.0001" required data-help="Quantidade apurada na contagem física." />
           </div>
           <div>
             <label>Depósito</label>
-            <select id="invDeposito"></select>
+            <select id="invDeposito" data-help="Depósito onde a contagem foi realizada."></select>
           </div>
           <div>
             <label>Endereço</label>
-            <select id="invEndereco"></select>
+            <select id="invEndereco" data-help="Endereço específico dentro do depósito onde o item está armazenado."></select>
           </div>
           <div>
             <button class="btn btn-outline" type="submit" style="margin-top:22px">Ajustar saldo</button>
@@ -447,11 +447,11 @@
         <div class="grid">
           <div>
             <label>Item</label>
-            <input id="rItem" placeholder="código">
+            <input id="rItem" placeholder="código" data-help="Opcional: filtre os relatórios por um item específico." />
           </div>
           <div>
             <label>Últimos N dias</label>
-            <input id="rDias" type="number" value="30">
+            <input id="rDias" type="number" value="30" data-help="Defina o período em dias para análise das movimentações." />
           </div>
           <div>
             <button id="btnRel" class="btn btn-outline" style="margin-top:22px">Gerar</button>
@@ -468,11 +468,11 @@
           <form id="frmDeposito" class="grid">
             <div>
               <label>Código</label>
-              <input id="depCodigo" placeholder="Ex: MATRIZ" required>
+              <input id="depCodigo" placeholder="Ex: MATRIZ" required data-help="Identificador único do depósito (ex.: MATRIZ, FILIAL1)." />
             </div>
             <div>
               <label>Descrição / Nome</label>
-              <input id="depDescricao" placeholder="Ex: Depósito central">
+              <input id="depDescricao" placeholder="Ex: Depósito central" data-help="Nome descritivo do depósito para facilitar a identificação." />
             </div>
             <div>
               <button class="btn btn-primary" type="submit" style="margin-top:22px">Salvar depósito</button>
@@ -528,6 +528,7 @@ coleções principais:
   </main>
 </div>
 <script type="module" src="./firebase-config.js"></script>
+<script type="module" src="../shared/help-tooltips.js"></script>
 <script type="module" src="./app.js"></script>
 </body>
 </html>

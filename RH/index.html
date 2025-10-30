@@ -87,23 +87,23 @@
           <h2>Entrar</h2>
           <p><small class="helper">Acesso para equipe (ADM, RH, Gestor e Colaborador).</small></p>
           <form id="login-form" class="grid">
-            <input class="input" type="email" name="email" placeholder="E-mail" required />
-            <input class="input" type="password" name="password" placeholder="Senha" required minlength="6" />
+            <input class="input" type="email" name="email" placeholder="E-mail" required data-help="Informe o e-mail corporativo cadastrado no sistema para acessar sua conta." />
+            <input class="input" type="password" name="password" placeholder="Senha" required minlength="6" data-help="Digite a senha com pelo menos 6 caracteres definida no momento do cadastro." />
             <button class="btn" type="submit">Entrar</button>
           </form>
           <hr class="split">
           <details>
             <summary><b>Novo por aqui?</b> Criar conta</summary>
             <form id="signup-form" class="grid">
-              <input class="input" type="text" name="name" placeholder="Seu nome" required />
-              <select name="role" class="input">
+              <input class="input" type="text" name="name" placeholder="Seu nome" required data-help="Informe o nome completo que aparecerá para os gestores e colegas." />
+              <select name="role" class="input" data-help="Selecione o perfil de acesso adequado (Colaborador, RH, Gestor ou ADM).">
                 <option>Colaborador</option>
                 <option>RH</option>
                 <option>Gestor</option>
                 <option>ADM</option>
               </select>
-              <input class="input" type="email" name="email" placeholder="E-mail" required />
-              <input class="input" type="password" name="password" placeholder="Senha (mín. 6)" required minlength="6" />
+              <input class="input" type="email" name="email" placeholder="E-mail" required data-help="Use um e-mail válido para receber comunicações e recuperar acesso." />
+              <input class="input" type="password" name="password" placeholder="Senha (mín. 6)" required minlength="6" data-help="Crie uma senha com pelo menos 6 caracteres combinando letras, números ou símbolos." />
               <button class="btn" type="submit">Criar conta</button>
             </form>
           </details>
@@ -130,6 +130,7 @@
     </section>
   </main>
 
+  <script type="module" src="../shared/help-tooltips.js"></script>
   <script type="module" src="./auth.js"></script>
   <script type="module" src="./app.js"></script>
   <script type="module" src="./modules/employees.js"></script>

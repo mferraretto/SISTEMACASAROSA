@@ -154,3 +154,20 @@ small.helper{color:#6b7280}
 .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end}
 .empty{text-align:center;padding:1.5rem 0;color:#6b7280}
 .permission-list .badge{margin-right:.35rem}
+
+.field-help{display:flex;align-items:center;gap:.5rem;width:100%}
+.field-help > input,
+.field-help > select,
+.field-help > textarea{flex:1 1 auto}
+.field-help-label{display:flex;align-items:center;gap:.35rem}
+.help-icon{position:relative;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1px solid rgba(17,24,39,.15);background:#fff;color:var(--magenta);font-weight:700;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.help-icon:hover,.help-icon:focus-visible,.help-icon.active{background:rgba(255,0,138,.1);color:var(--ink);border-color:rgba(255,0,138,.4)}
+.help-icon:focus-visible{outline:none;box-shadow:var(--ring)}
+.help-icon::after{content:attr(data-tooltip);position:absolute;bottom:calc(100% + 8px);right:0;max-width:260px;padding:.55rem .7rem;border-radius:.6rem;background:#111827;color:#f9fafb;font-size:.75rem;line-height:1.35;box-shadow:0 10px 25px -12px rgba(17,24,39,.45);opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .15s ease,transform .15s ease;z-index:20;text-align:left;white-space:normal}
+.help-icon::before{content:"";position:absolute;bottom:100%;right:10px;border:6px solid transparent;border-top-color:#111827;opacity:0;transition:opacity .15s ease}
+.help-icon:hover::after,
+.help-icon:hover::before,
+.help-icon:focus-visible::after,
+.help-icon:focus-visible::before,
+.help-icon.active::after,
+.help-icon.active::before{opacity:1;transform:translateY(0)}

@@ -334,7 +334,7 @@ function renderRequestForm(idPrefix, employeesOptions = []) {
   const collaboratorSelect = employeesOptions.length
     ? `<div class="field">
         <label>Colaborador</label>
-        <select name="employee" class="input" required>
+        <select name="employee" class="input" required data-help="Escolha o colaborador para o qual a solicitação de férias será registrada.">
           <option value="" disabled selected>Selecione</option>
           ${options}
         </select>
@@ -347,28 +347,28 @@ function renderRequestForm(idPrefix, employeesOptions = []) {
         ${collaboratorSelect}
         <div class="field">
           <label>Início</label>
-          <input class="input" type="date" name="start" required>
+          <input class="input" type="date" name="start" required data-help="Selecione o primeiro dia de afastamento conforme o planejamento de férias.">
         </div>
         <div class="field">
           <label>Término</label>
-          <input class="input" type="date" name="end" required>
+          <input class="input" type="date" name="end" required data-help="Informe o último dia do período de férias para calcular o total de dias.">
         </div>
         <div class="field">
           <label>Formato</label>
-          <select class="input" name="splitType">
+          <select class="input" name="splitType" data-help="Defina se as férias serão gozadas integralmente ou em períodos fracionados.">
             ${SPLIT_OPTIONS.map((opt) => `<option value="${opt.value}">${opt.label}</option>`).join("")}
           </select>
         </div>
         <div class="field">
           <label>Abono pecuniário</label>
-          <select class="input" name="abono">
+          <select class="input" name="abono" data-help="Indique se haverá venda de 1/3 das férias (abono pecuniário).">
             <option value="nao">Não</option>
             <option value="sim">Sim (venda de 1/3)</option>
           </select>
         </div>
         <div class="field" style="grid-column:1 / -1">
           <label>Observações</label>
-          <textarea class="input" name="notes" rows="3" placeholder="Observações adicionais, acordos de divisão, etc."></textarea>
+          <textarea class="input" name="notes" rows="3" placeholder="Observações adicionais, acordos de divisão, etc." data-help="Registre orientações específicas, como acordo de fracionamento ou contatos durante as férias."></textarea>
         </div>
         <div class="field" style="grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center">
           <small class="helper">Total previsto: <strong id="${idPrefix}-days">—</strong></small>
@@ -511,20 +511,20 @@ function renderManagerBoard(items, role) {
           <small class="helper">Pendentes: ${totalPending} • Aprovadas: ${totalApproved}</small>
         </div>
         <div class="toolbar-actions">
-          <input class="input search" id="vac-filter-search" placeholder="Buscar por nome ou e-mail" value="${currentFilters.search}">
-          <select class="input" id="vac-filter-status">
+          <input class="input search" id="vac-filter-search" placeholder="Buscar por nome ou e-mail" value="${currentFilters.search}" data-help="Filtra as solicitações de férias pelo nome ou e-mail do colaborador.">
+          <select class="input" id="vac-filter-status" data-help="Filtra os registros pelo status atual (pendente, aprovada, rejeitada etc.).">
             <option value="">Status (todos)</option>
             ${filterOptions.statuses
               .map((opt) => `<option value="${opt.value}" ${currentFilters.status === opt.value ? "selected" : ""}>${opt.label}</option>`)
               .join("")}
           </select>
-          <select class="input" id="vac-filter-manager">
+          <select class="input" id="vac-filter-manager" data-help="Exibe apenas solicitações relacionadas ao gestor selecionado.">
             <option value="">Gestor (todos)</option>
             ${filterOptions.managers
               .map((opt) => `<option value="${opt.value}" ${currentFilters.manager === opt.value ? "selected" : ""}>${opt.label}</option>`)
               .join("")}
           </select>
-          <select class="input" id="vac-filter-cost">
+          <select class="input" id="vac-filter-cost" data-help="Restringe a lista a um centro de custo específico.">
             <option value="">Centro de custo</option>
             ${Array.from(filterOptions.costCenters)
               .map((value) => `<option value="${value}" ${currentFilters.costCenter === value ? "selected" : ""}>${value}</option>`)
@@ -536,11 +536,11 @@ function renderManagerBoard(items, role) {
       <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
         <label class="field" style="max-width:180px">
           <span>Início</span>
-          <input type="date" class="input" id="vac-filter-start" value="${currentFilters.periodStart}">
+          <input type="date" class="input" id="vac-filter-start" value="${currentFilters.periodStart}" data-help="Data inicial para filtrar solicitações por período de início das férias.">
         </label>
         <label class="field" style="max-width:180px">
           <span>Término</span>
-          <input type="date" class="input" id="vac-filter-end" value="${currentFilters.periodEnd}">
+          <input type="date" class="input" id="vac-filter-end" value="${currentFilters.periodEnd}" data-help="Data final para filtrar solicitações por término das férias.">
         </label>
         <button class="btn ghost" id="vac-clear">Limpar filtros</button>
       </div>
