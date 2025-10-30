@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Casa Rosa | Estoque</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-badge">CR</div>
+      <div>
+        <div class="brand">Casa Rosa</div>
+        <div class="small">Gestão de Estoque</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="#" data-page="dashboard" class="active">📊 Dashboard</a>
+      <a href="#" data-page="itens">📦 Itens & Insumos</a>
+      <a href="#" data-page="mov">🔁 Movimentações</a>
+      <a href="#" data-page="producao">🛠️ Produção (BOM)</a>
+      <a href="#" data-page="inventario">📝 Inventário</a>
+      <a href="#" data-page="relatorios">📑 Relatórios</a>
+      <a href="#" data-page="config">⚙️ Configurações</a>
+    </nav>
+    <hr>
+    <button id="btnSair" class="btn btn-outline">Sair</button>
+  </aside>
+  <main>
+    <header class="header">
+      <div class="toolbar">
+        <span class="badge">Magenta</span>
+        <span class="badge" style="border-color:var(--tiffany)">Tiffany</span>
+        <span class="badge" style="border-color:var(--amarelo)">Amarelo</span>
+      </div>
+      <div id="userInfo" class="small">carregando...</div>
+    </header>
+
+    <section id="dashboard" class="content">
+      <div class="kpis">
+        <div class="card kpi"><div class="label">Itens cadastrados</div><div id="kpiItens" class="value">0</div></div>
+        <div class="card kpi"><div class="label">Saldo total</div><div id="kpiSaldo" class="value">0</div></div>
+        <div class="card kpi"><div class="label">Valor em estoque</div><div id="kpiValor" class="value">R$ 0,00</div></div>
+        <div class="card kpi"><div class="label">Movimentações (30d)</div><div id="kpiMov" class="value">0</div></div>
+      </div>
+      <div class="card">
+        <h3>Consumo médio (top 10)</h3>
+        <table id="tblConsumo"><thead><tr><th>Item</th><th>UM</th><th>Consumo 30d</th><th>Estoque</th><th>Proj. dias</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="itens" class="content hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Cadastrar item / insumo</h3>
+          <form id="frmItem">
+            <div class="grid">
+              <div>
+                <label>Código</label>
+                <input id="iCodigo" placeholder="SKU / Código interno" required>
+              </div>
+              <div>
+                <label>Descrição</label>
+                <input id="iDesc" placeholder="Ex: Chapa MDF 9mm 2,75x1,83" required>
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Unidade</label>
+                <select id="iUM">
+                  <option value="UN">UN</option>
+                  <option value="PC">PC</option>
+                  <option value="KG">KG</option>
+                  <option value="M2">M2</option>
+                </select>
+              </div>
+              <div>
+                <label>Custo médio (R$)</label>
+                <input id="iCusto" type="number" step="0.01" value="0">
+              </div>
+            </div>
+            <label>Estoque mínimo</label>
+            <input id="iMin" type="number" step="0.01" value="0">
+            <label>Observações</label>
+            <textarea id="iObs" rows="2"></textarea>
+            <br>
+            <button class="btn btn-primary" type="submit">Salvar item</button>
+            <span id="itemMsg" class="help"></span>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Itens cadastrados</h3>
+          <div class="toolbar">
+            <select id="fDeposito"></select>
+            <select id="fEndereco"></select>
+            <input id="buscaItem" placeholder="Buscar por código/descrição">
+            <button id="btnReloadItens" class="btn btn-outline">Atualizar</button>
+          </div>
+          <table id="tblItens"><thead><tr><th>Código</th><th>Descrição</th><th>UM base</th><th>Estoque</th><th>Min</th><th>Custo</th><th>Ações</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Conversão de unidades</h3>
+        <div class="grid">
+          <div>
+            <label>Item</label>
+            <select id="convItem"></select>
+          </div>
+          <div>
+            <label>Digite quantidade (ex.: 3 chapas)</label>
+            <input id="convEntrada" placeholder="Quantidade + unidade alternativa">
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button id="btnConverterUM" class="btn btn-outline" style="margin-top:2px">Converter</button>
+          </div>
+        </div>
+        <div id="convResultado" class="help"></div>
+        <div id="convTabela"></div>
+      </div>
+      <div class="card">
+        <h3>Estrutura (BOM) de produto</h3>
+        <form id="frmBOM" class="grid">
+          <div>
+            <label>Produto (código)</label>
+            <input id="bomProduto" required placeholder="EX: KIT-TRIO-CILINDRO">
+          </div>
+          <div>
+            <label>Item/insumo</label>
+            <input id="bomItem" required placeholder="EX: MDF-9MM-PLACA">
+          </div>
+          <div>
+            <label>Quantidade por produto</label>
+            <input id="bomQtd" type="number" step="0.0001" value="1">
+          </div>
+          <div>
+            <label>Perda padrão (%)</label>
+            <input id="bomPerda" type="number" step="0.01" value="0">
+          </div>
+          <div>
+            <button class="btn btn-outline" type="submit" style="margin-top:22px">Adicionar à BOM</button>
+          </div>
+        </form>
+        <div id="bomMsg" class="help"></div>
+        <table id="tblBOM"><thead><tr><th>Produto</th><th>Item</th><th>Qtd</th><th>Perda padrão (%)</th><th>Remover</th></tr></thead><tbody></tbody></table>
+      </div>
+      <div class="card">
+        <h3>Subprodutos / Co-produtos</h3>
+        <form id="frmSubproduto" class="grid">
+          <div>
+            <label>Produto (código)</label>
+            <input id="subProduto" required placeholder="EX: KIT-TRIO-CILINDRO">
+          </div>
+          <div>
+            <label>Item subproduto</label>
+            <input id="subItem" required placeholder="EX: SUCATA-MDF">
+          </div>
+          <div>
+            <label>Qtd por unidade produzida</label>
+            <input id="subQtd" type="number" step="0.0001" value="0">
+          </div>
+          <div>
+            <button class="btn btn-outline" type="submit" style="margin-top:22px">Adicionar subproduto</button>
+          </div>
+        </form>
+        <div id="subMsg" class="help"></div>
+        <div class="toolbar">
+          <input id="subProdutoLookup" placeholder="Produto (código)">
+          <button id="btnLoadSubprodutos" class="btn btn-outline">Listar subprodutos</button>
+        </div>
+        <table id="tblSubprodutos"><thead><tr><th>Produto</th><th>Item</th><th>Qtd/Unid.</th><th>Remover</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="mov" class="content hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Registrar movimentação</h3>
+          <form id="frmMov">
+            <div class="grid">
+              <div>
+                <label>Tipo</label>
+                <select id="mTipo">
+                  <option value="ENTRADA">ENTRADA (compra/devolução)</option>
+                  <option value="SAIDA">SAÍDA (consumo/venda)</option>
+                  <option value="TRANSFER">TRANSFERÊNCIA</option>
+                </select>
+              </div>
+              <div>
+                <label>Código do item</label>
+                <input id="mItem" required placeholder="ex: MDF-9MM-PLACA">
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Depósito</label>
+                <select id="mDeposito"></select>
+              </div>
+              <div>
+                <label>Endereço</label>
+                <select id="mEndereco"></select>
+              </div>
+            </div>
+            <div id="destinoTransfer" class="grid hidden">
+              <div>
+                <label>Depósito destino</label>
+                <select id="mDepositoDestino"></select>
+              </div>
+              <div>
+                <label>Endereço destino</label>
+                <select id="mEnderecoDestino"></select>
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Quantidade</label>
+                <input id="mQtd" type="number" step="0.0001" required value="1">
+              </div>
+              <div>
+                <label>Custo unitário (R$)</label>
+                <input id="mCusto" type="number" step="0.01" value="0">
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Centro de custo</label>
+                <input id="mCC" placeholder="ex: PRODUCAO / LOJA">
+              </div>
+              <div>
+                <label>Obs</label>
+                <input id="mObs" placeholder="motivo/nota">
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Lote (opcional)</label>
+                <input id="mLote" placeholder="ex: L23-05">
+              </div>
+              <div>
+                <label>Validade</label>
+                <input id="mValidade" type="date">
+              </div>
+            </div>
+            <div class="grid">
+              <div class="checkbox">
+                <label><input type="checkbox" id="mFIFO"> Usar FIFO / PEPS</label>
+              </div>
+              <div>
+                <label>Causa da baixa</label>
+                <select id="mCausa">
+                  <option value="">-- selecionar --</option>
+                  <option value="CONSUMO">Consumo</option>
+                  <option value="PERDA">Perda</option>
+                  <option value="QUEBRA">Quebra</option>
+                  <option value="AMOSTRA">Amostra</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="checkbox">
+                <label><input type="checkbox" id="mReserva"> Registrar como reserva</label>
+              </div>
+              <div>
+                <label>Pedido / Referência</label>
+                <input id="mPedidoRef" placeholder="ex: PED-123">
+              </div>
+            </div>
+            <br>
+            <button class="btn btn-primary" type="submit">Registrar</button>
+            <span id="movMsg" class="help"></span>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Últimas movimentações</h3>
+          <div class="toolbar">
+            <select id="fMovDeposito"></select>
+            <select id="fMovEndereco"></select>
+          </div>
+          <table id="tblMov"><thead><tr><th>Data</th><th>Tipo</th><th>Item</th><th>Qtd</th><th>Depósito</th><th>Endereço</th><th>Lote</th><th>Causa</th><th>Obs/Status</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Reservas pendentes</h3>
+        <table id="tblReservas"><thead><tr><th>Data</th><th>Item</th><th>Qtd</th><th>Depósito/Endereço</th><th>Pedido</th><th>Status</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="producao" class="content hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Nova Ordem de Produção</h3>
+          <form id="frmNovaOP">
+            <div class="grid">
+              <div>
+                <label>Produto (código)</label>
+                <input id="opProduto" required placeholder="KIT-TRIO-CILINDRO">
+              </div>
+              <div>
+                <label>Quantidade planejada</label>
+                <input id="opQtdPlanejada" type="number" step="0.0001" value="1">
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Criar OP</button>
+            <span id="opMsg" class="help"></span>
+            <p class="help">Gera ordem com BOM associada, permitindo apontamentos e produção parcial.</p>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Produção parcial / baixa</h3>
+          <form id="frmParcialOP">
+            <div class="grid">
+              <div>
+                <label>Ordem</label>
+                <select id="opParcialOP"></select>
+              </div>
+              <div>
+                <label>Quantidade produzida</label>
+                <input id="opQtdParcial" type="number" step="0.0001" value="1">
+              </div>
+            </div>
+            <button class="btn btn-primary" type="submit">Registrar produção parcial</button>
+            <span id="opParcialMsg" class="help"></span>
+            <p class="help">Consome componentes proporcionalmente e gera entrada do produto e subprodutos.</p>
+          </form>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>Apontamento de etapa</h3>
+          <form id="frmEtapaOP">
+            <div class="grid">
+              <div>
+                <label>Ordem</label>
+                <select id="opEtapaOP"></select>
+              </div>
+              <div>
+                <label>Etapa</label>
+                <select id="opEtapaNome">
+                  <option value="cortar">Cortar</option>
+                  <option value="lixar">Lixar</option>
+                  <option value="pintar">Pintar</option>
+                  <option value="montar">Montar</option>
+                  <option value="outros">Outros</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Máquina</label>
+                <select id="opEtapaMaquina">
+                  <option value="CNC-01">CNC-01</option>
+                  <option value="LIXA-01">LIXA-01</option>
+                  <option value="PINT-01">PINT-01</option>
+                  <option value="MONT-01">MONT-01</option>
+                </select>
+              </div>
+              <div>
+                <label>Operador</label>
+                <input id="opEtapaOperador" placeholder="Nome do operador">
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Início</label>
+                <input id="opEtapaInicio" type="datetime-local" required>
+              </div>
+              <div>
+                <label>Fim</label>
+                <input id="opEtapaFim" type="datetime-local" required>
+              </div>
+            </div>
+            <div class="grid">
+              <div>
+                <label>Perda real (unidades)</label>
+                <input id="opEtapaPerda" type="number" step="0.0001" value="0">
+              </div>
+              <div>
+                <label>Observações</label>
+                <input id="opEtapaObs" placeholder="Notas / ocorrências">
+              </div>
+            </div>
+            <button class="btn btn-outline" type="submit">Registrar etapa</button>
+            <div id="opEtapaMsg" class="help"></div>
+            <p class="help">Valida capacidade da máquina por turno e recalcula custo com base na perda real.</p>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Etapas registradas</h3>
+          <div class="toolbar">
+            <select id="opEtapasFiltro"></select>
+          </div>
+          <table id="tblEtapasOP"><thead><tr><th>Início</th><th>Fim</th><th>Etapa</th><th>Operador</th><th>Máquina</th><th>Perda</th><th>Obs</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <h3>BOM do produto (visualização)</h3>
+          <div class="toolbar">
+            <input id="bomLookup" placeholder="Produto (código)">
+            <button id="btnLoadBOM" class="btn btn-outline">Carregar BOM</button>
+          </div>
+          <table id="tblBOMView"><thead><tr><th>Item</th><th>Qtd por unid.</th><th>Perda padrão (%)</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="card">
+          <h3>Ordens de Produção</h3>
+          <table id="tblOP"><thead><tr><th>OP</th><th>Produto</th><th>Planejado</th><th>Produzido</th><th>Status</th><th>Início</th><th>Fim</th><th>Perda real</th><th>Custo prev.</th><th>Custo real</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <section id="inventario" class="content hidden">
+      <div class="card">
+        <h3>Contagem de estoque</h3>
+        <form id="frmInv" class="grid">
+          <div>
+            <label>Código do item</label>
+            <input id="invItem" required>
+          </div>
+          <div>
+            <label>Quantidade contada</label>
+            <input id="invQtd" type="number" step="0.0001" required>
+          </div>
+          <div>
+            <label>Depósito</label>
+            <select id="invDeposito"></select>
+          </div>
+          <div>
+            <label>Endereço</label>
+            <select id="invEndereco"></select>
+          </div>
+          <div>
+            <button class="btn btn-outline" type="submit" style="margin-top:22px">Ajustar saldo</button>
+          </div>
+        </form>
+        <div id="invMsg" class="help"></div>
+        <p class="help">Gera movimentações de ajuste (+/-) até o saldo informado.</p>
+      </div>
+    </section>
+
+    <section id="relatorios" class="content hidden">
+      <div class="card">
+        <h3>Relatórios rápidos</h3>
+        <div class="grid">
+          <div>
+            <label>Item</label>
+            <input id="rItem" placeholder="código">
+          </div>
+          <div>
+            <label>Últimos N dias</label>
+            <input id="rDias" type="number" value="30">
+          </div>
+          <div>
+            <button id="btnRel" class="btn btn-outline" style="margin-top:22px">Gerar</button>
+          </div>
+        </div>
+        <table id="tblRel"><thead><tr><th>Data</th><th>Tipo</th><th>Qtd</th><th>Custo</th><th>Obs</th></tr></thead><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section id="config" class="content hidden">
+      <div class="grid">
+        <div class="card">
+          <h3>Depósitos</h3>
+          <form id="frmDeposito" class="grid">
+            <div>
+              <label>Código</label>
+              <input id="depCodigo" placeholder="Ex: MATRIZ" required>
+            </div>
+            <div>
+              <label>Descrição / Nome</label>
+              <input id="depDescricao" placeholder="Ex: Depósito central">
+            </div>
+            <div>
+              <button class="btn btn-primary" type="submit" style="margin-top:22px">Salvar depósito</button>
+            </div>
+          </form>
+          <div id="depMsg" class="help"></div>
+          <table id="tblDepositos">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Endereços vinculados</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Estrutura de dados</h3>
+          <pre class="small highlight">
+coleções principais:
+- usuarios/{uid}
+- depositos/{id}
+- enderecos/{id}
+  - depositoId, codigo, descricao
+- itens/{codigo}
+  - descricao, umBase, custoMedio, min, estoqueTotal, obs
+  - saldos/{enderecoId}
+    - qtd
+- lotes/{itemCodigo}/{loteId}
+  - validade, saldo, enderecoId
+- movimentos/{autoId}
+  - tipo, item, qtd, custo, cc, obs, criadoEm, uid, depositoId, enderecoId, loteId
+- reservas/{id}
+  - item, qtd, enderecoId, pedidoRef, status
+- conversoesUM/{item}
+  - umBase, fatores[]
+- bom/{produto}/componentes/{item}
+  - qtd, perdaPadraoPct
+ - subprodutos/{produto}/itens/{id}
+  - item, qtdPorUnid
+ - op/{id}
+  - produto, qtdPlanejada, qtdProduzida, status, inicio, fim, custoPrevisto, custoReal, custoUnitarioPrevisto, custoUnitarioReal, perdaPadraoTotal, perdaRealTotal
+- op/{id}/etapas/{etapaId}
+  - nome, inicio, fim, operador, maquina, perda, observacao
+        </pre>
+        <p class="help">Recomenda-se ativar regras de segurança (arquivo firestore.rules).</p>
+
+      </div>
+    </section>
+
+    <div class="footer small">© Casa Rosa • Plataforma de Estoque e Produção</div>
+  </main>
+</div>
+<script type="module" src="./firebase-config.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
