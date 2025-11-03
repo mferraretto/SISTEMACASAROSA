@@ -205,9 +205,42 @@ async function loadReceber(){
 }
 
 function renderTable(rows,tipo){
-  const head = tipo==='pagar'
-    ? ['Fornecedor','Valor','Vencimento','Centro','Categoria','Status','Anexos','Ações']
-    : ['Cliente','Valor','Vencimento','Canal','Categoria','Status','Anexos','Ações'];
+  if(tipo==='pagar'){
+    const head = ['Fornecedor','Valor','Vencimento','Centro','Categoria','Status','Boleto','Comprovante','Ações'];
+    const cols = head.map(h=>`<th class="px-2 py-2 text-left text-xs text-gray-500">${h}</th>`).join('');
+    const trs = rows.map(r=>{
+      const venc = r.vencimento?.toDate?.() || (r.vencimento? new Date(r.vencimento): null);
+      const vencStr = venc? toDateInputValue(venc) : '-';
+      const anexosAntigos = Array.isArray(r.anexos)? r.anexos : [];
+      const boletoMeta = r.anexoBoleto || anexosAntigos[0] || null;
+      const comprovanteMeta = r.anexoComprovante || anexosAntigos[1] || null;
+      const boletoLink = boletoMeta? `<a class="text-brand-tiffany underline" href="${boletoMeta.url}" target="_blank">ver boleto</a>` : '-';
+      const comprovanteLink = comprovanteMeta? `<a class="text-brand-tiffany underline" href="${comprovanteMeta.url}" target="_blank">ver comprovante</a>` : '-';
+      return `<tr class="border-t">
+        <td class="px-2 py-2">${r.fornecedor||'-'}</td>
+        <td class="px-2 py-2 font-semibold">${fmtBRL(r.valor)}</td>
+        <td class="px-2 py-2">${vencStr}</td>
+        <td class="px-2 py-2">${r.centroCusto||'-'}</td>
+        <td class="px-2 py-2">${r.categoria||'-'}</td>
+        <td class="px-2 py-2"><span class="badge" style="background:#f3f4f6">${r.status||'pendente'}</span></td>
+        <td class="px-2 py-2">${boletoLink}</td>
+        <td class="px-2 py-2">${comprovanteLink}</td>
+        <td class="px-2 py-2">
+          <button class="text-brand-magenta underline" data-edit="${r.id}" data-tipo="${tipo}">editar</button> ·
+          <button class="text-red-600 underline" data-del="${r.id}" data-tipo="${tipo}">excluir</button> ·
+          <button class="text-brand-tiffany underline" data-addboleto="${r.id}" data-tipo="${tipo}">anexar boleto</button> ·
+          <button class="text-brand-tiffany underline" data-addcomprovante="${r.id}" data-tipo="${tipo}">anexar comprovante</button>
+        </td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="overflow-x-auto"><table class="min-w-full text-sm">
+      <thead><tr>${cols}</tr></thead>
+      <tbody>${trs || '<tr><td class="px-2 py-4 text-gray-500">Nenhum lançamento</td></tr>'}</tbody>
+    </table></div>`;
+  }
+
+  const head = ['Cliente','Valor','Vencimento','Canal','Categoria','Status','Anexos','Ações'];
   const cols = head.map(h=>`<th class="px-2 py-2 text-left text-xs text-gray-500">${h}</th>`).join('');
   const trs = rows.map(r=>{
     const venc = r.vencimento?.toDate?.() || (r.vencimento? new Date(r.vencimento): null);
@@ -235,14 +268,15 @@ function renderTable(rows,tipo){
   </table></div>`;
 }
 
+
 function bindRowActions(tipo){
-  document.querySelectorAll('[data-edit]').forEach(btn=>{
+  document.querySelectorAll(`[data-edit][data-tipo="${tipo}"]`).forEach(btn=>{
     btn.addEventListener('click',()=> {
       const id = btn.getAttribute('data-edit');
       (tipo==='pagar'? openModalDespesa : openModalReceber)(id);
     });
   });
-  document.querySelectorAll('[data-del]').forEach(btn=>{
+  document.querySelectorAll(`[data-del][data-tipo="${tipo}"]`).forEach(btn=>{
     btn.addEventListener('click', async ()=> {
       const id = btn.getAttribute('data-del');
       if(confirm('Excluir este registro?')){
@@ -251,26 +285,51 @@ function bindRowActions(tipo){
       }
     });
   });
-  document.querySelectorAll('[data-addfile]').forEach(btn=>{
-    btn.addEventListener('click', async ()=> {
-      const id = btn.getAttribute('data-addfile');
-      const input = Object.assign(document.createElement('input'),{type:'file'});
-      input.onchange = async ()=>{
-        const file = input.files[0]; if(!file) return;
-        const qualidade = parseFloat(document.getElementById('cfgQualidade').value || '0.8');
-        const meta = await saveAttachmentSmart({file, qualidadeWebp: qualidade});
-        const docRef = doc(db,'financeiro','default',`contas_${tipo}`, id);
-        const snap = await getDoc(docRef);
-        const data = snap.data()||{};
-        const anexos = data.anexos||[];
-        anexos.push(meta);
-        await updateDoc(docRef, {anexos});
-        (tipo==='pagar'? loadPagar: loadReceber)();
-      };
-      input.click();
+  if(tipo==='pagar'){
+    document.querySelectorAll(`[data-addboleto][data-tipo="${tipo}"]`).forEach(btn=>{
+      btn.addEventListener('click', ()=> handleUploadPagar(btn.getAttribute('data-addboleto'), 'anexoBoleto', 'boleto'));
     });
-  });
+    document.querySelectorAll(`[data-addcomprovante][data-tipo="${tipo}"]`).forEach(btn=>{
+      btn.addEventListener('click', ()=> handleUploadPagar(btn.getAttribute('data-addcomprovante'), 'anexoComprovante', 'comprovante'));
+    });
+  }else{
+    document.querySelectorAll(`[data-addfile][data-tipo="${tipo}"]`).forEach(btn=>{
+      btn.addEventListener('click', async ()=> {
+        const id = btn.getAttribute('data-addfile');
+        const input = Object.assign(document.createElement('input'),{type:'file'});
+        input.onchange = async ()=>{
+          const file = input.files[0]; if(!file) return;
+          const qualidade = parseFloat(document.getElementById('cfgQualidade').value || '0.8');
+          const meta = await saveAttachmentSmart({file, qualidadeWebp: qualidade});
+          const docRef = doc(db,'financeiro','default',`contas_${tipo}`, id);
+          const snap = await getDoc(docRef);
+          const data = snap.data()||{};
+          const anexos = data.anexos||[];
+          anexos.push(meta);
+          await updateDoc(docRef, {anexos});
+          (tipo==='pagar'? loadPagar: loadReceber)();
+        };
+        input.click();
+      });
+    });
+  }
 }
+
+function handleUploadPagar(id, field, papel){
+  const input = Object.assign(document.createElement('input'),{type:'file'});
+  input.onchange = async ()=>{
+    const file = input.files[0]; if(!file) return;
+    const qualidade = parseFloat(document.getElementById('cfgQualidade').value || '0.8');
+    const meta = await saveAttachmentSmart({file, qualidadeWebp: qualidade});
+    const docRef = doc(db,'financeiro','default','contas_pagar', id);
+    const payload = {};
+    payload[field] = {...meta, papel};
+    await updateDoc(docRef, payload);
+    await loadPagar();
+  };
+  input.click();
+}
+
 
 // Modal simples (prompt-based para manter o zip compacto)
 async function openModalDespesa(id){
