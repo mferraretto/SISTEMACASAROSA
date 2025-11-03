@@ -1,6 +1,7 @@
 import { auth, db } from './FINANCEIRO/firebase-config.js';
 import { signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js';
+import { ALLOWED_PROFILES, extractFinanceProfiles, hasFinanceAccess } from './shared/finance-access.js';
 
 const modal = document.getElementById('financeiro-modal');
 const openBtn = document.getElementById('financeiro-card');
@@ -11,8 +12,10 @@ const submitBtn = document.getElementById('financeiro-submit');
 const feedback = document.getElementById('financeiro-feedback');
 const closeControls = modal ? modal.querySelectorAll('[data-close-modal]') : [];
 
-const ALLOWED_PROFILES = ['FINANCEIRO', 'COMPRAS'];
 let lastFocusedElement = null;
+const allowedProfilesText = ALLOWED_PROFILES
+  .map((perfil) => `${perfil.charAt(0)}${perfil.slice(1).toLowerCase()}`)
+  .join(' ou ');
 
 const setFeedback = (message, type = 'info') => {
   if (!feedback) return;
@@ -47,22 +50,6 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-function normalizeProfiles(value) {
-  if (!value) return [];
-  if (typeof value === 'string') return [value];
-  if (typeof value === 'boolean') return value ? ['FINANCEIRO'] : [];
-  if (Array.isArray(value)) return value;
-  if (typeof value === 'object') {
-    const entries = [];
-    Object.values(value).forEach((v) => {
-      if (typeof v === 'string') entries.push(v);
-      if (typeof v === 'boolean' && v) entries.push('FINANCEIRO');
-    });
-    return entries;
-  }
-  return [];
-}
-
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!emailInput || !passwordInput) return;
@@ -90,12 +77,13 @@ form?.addEventListener('submit', async (event) => {
     }
 
     const data = profileSnap.data() || {};
-    const profiles = normalizeProfiles(data.financeiro).map((p) => String(p || '').trim().toUpperCase()).filter(Boolean);
-    const isAuthorized = profiles.some((perfil) => ALLOWED_PROFILES.includes(perfil));
+    const profiles = extractFinanceProfiles(data);
+    console.debug('Perfis do usuário para Financeiro:', profiles);
+    const isAuthorized = hasFinanceAccess(data);
 
     if (!isAuthorized) {
       await signOut(auth);
-      throw new Error('Acesso restrito. Este usuário não possui perfil Financeiro ou Compras.');
+      throw new Error(`Acesso restrito. Este usuário não possui perfil ${allowedProfilesText}.`);
     }
 
     setFeedback('Acesso liberado! Redirecionando...', 'success');
